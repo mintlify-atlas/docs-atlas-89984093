@@ -1,0 +1,95 @@
+---
+title: "AnnotationKit: vector drawing and annotation engine"
+description: "AnnotationKit provides the full annotation engine for Capso — document model, eight object types, undo/redo, hit-testing, and a CoreGraphics renderer."
+---
+
+AnnotationKit is the Swift package that powers Capso's annotation editor. It is a pure-logic package with no UIKit or AppKit dependencies — all rendering goes through CoreGraphics so it can be embedded in any macOS target. The central type is `AnnotationDocument`, which owns a list of `AnnotationObject` instances and a full undo/redo stack.
+
+## AnnotationDocument
+
+`AnnotationDocument` is an `@Observable @MainActor` class that manages the full state of an annotated image session.
+
+```swift annotationkit-usage.swift
+import AnnotationKit
+import CoreGraphics
+
+let doc = AnnotationDocument(imageSize: CGSize(width: 1440, height: 900))
+
+// Add an arrow
+let arrow = ArrowObject(start: CGPoint(x: 100, y: 100), end: CGPoint(x: 300, y: 300))
+doc.addObject(arrow)
+
+// Select and move
+doc.selectObject(id: arrow.id)
+doc.moveObject(id: arrow.id, by: CGSize(width: 10, height: -5))
+
+// Undo / redo
+if doc.canUndo { doc.undo() }
+if doc.canRedo { doc.redo() }
+```
+
+### Public API
+
+| Method / Property | Description |
+|---|---|
+| `init(imageSize: CGSize)` | Create a document for an image of the given size |
+| `objects: [any AnnotationObject]` | All annotation objects in draw order |
+| `selectedObjectID: ObjectID?` | ID of the currently selected object |
+| `selectedObject: (any AnnotationObject)?` | Convenience accessor for the selected object |
+| `canUndo: Bool` | Whether the undo stack has entries |
+| `canRedo: Bool` | Whether the redo stack has entries |
+| `addObject(_ object: any AnnotationObject)` | Append an object and push undo |
+| `removeObject(id: ObjectID)` | Remove object by ID and push undo |
+| `removeSelected()` | Remove whichever object is currently selected |
+| `selectObject(id: ObjectID?)` | Set the selection |
+| `clearSelection()` | Deselect all |
+| `objectAt(point:threshold:)` | Hit-test at a point (reverse draw order) |
+| `moveObject(id:by:)` | Translate object by a delta |
+| `beginDrag()` | Push an undo snapshot before a drag begins |
+| `undo()` | Restore previous state |
+| `redo()` | Re-apply an undone state |
+
+## Annotation object types
+
+All annotation objects conform to the `AnnotationObject` protocol, which requires an `id`, `move(by:)`, `copy()`, and `hitTest(point:threshold:)`. Eight concrete types are available:
+
+| Type | Description |
+|---|---|
+| `ArrowObject` | A directional arrow with configurable start/end, stroke color, and width |
+| `RectangleObject` | An outlined or filled rectangle with stroke and fill color |
+| `EllipseObject` | Circle or oval, same stroke/fill controls as rectangle |
+| `TextObject` | A text label with font size and color |
+| `FreehandObject` | A freehand pen path made of `CGPoint` strokes |
+| `PixelateObject` | A blur/pixelate region to censor sensitive content |
+| `CounterObject` | A numbered bubble marker that auto-increments |
+| `CropObject` | Defines a crop boundary to trim the canvas |
+
+## AnnotationRenderer
+
+`AnnotationRenderer` takes an `AnnotationDocument` and a base `CGImage` and produces a composited output image. Use it to flatten annotations onto the screenshot before saving or copying.
+
+```swift render-example.swift
+import AnnotationKit
+
+let renderer = AnnotationRenderer()
+let output: CGImage = renderer.render(document: doc, baseImage: captureResult.image)
+```
+
+<Note>
+`AnnotationRenderer` is synchronous and runs on whatever thread you call it from. For large images, dispatch to a background queue before calling.
+</Note>
+
+## Running tests
+
+```bash
+swift test --package-path Packages/AnnotationKit
+```
+
+<CardGroup cols={2}>
+  <Card title="Package overview" icon="boxes-stacked" href="/developer/packages">
+    See all 8 Capso packages and their relationships
+  </Card>
+  <Card title="Annotation editor" icon="pen" href="/annotation/editor">
+    How to use the annotation editor in the Capso app
+  </Card>
+</CardGroup>

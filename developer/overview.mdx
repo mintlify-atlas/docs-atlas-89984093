@@ -1,0 +1,102 @@
+---
+title: "Capso architecture: modular Swift SPM package design"
+description: "Capso is a thin SwiftUI/AppKit shell backed by 8 independent SPM packages, each owning a distinct capability and independently testable without the app."
+---
+
+Capso is organized as a modular Swift Package Manager project. The `App/` target is a thin shell — it owns windows, panels, and coordinators — but all core capabilities (capture, recording, annotation, OCR, export, effects, and camera) live in independent SPM packages under `Packages/`. This separation keeps business logic testable without launching the app and allows any individual kit to be embedded in third-party projects.
+
+## Three-layer model
+
+Every feature in Capso maps to one of three layers. When adding a feature, identify which layer it belongs to before writing code.
+
+| Layer | Location | Responsibility |
+|---|---|---|
+| Package | `Packages/<Name>Kit/` | Core logic, data types, algorithms — no UI dependencies, independently testable |
+| Coordinator | `App/Sources/<Feature>/` | Orchestrates UI flow, owns `NSWindow` / `NSPanel` lifetime, bridges packages to views |
+| View | `App/Sources/<Feature>/` | SwiftUI views and AppKit `NSView` subclasses — presentation only |
+
+<Note>
+Business logic belongs in the appropriate package, not in `App/`. If code can be tested with `swift test`, it should live in a package.
+</Note>
+
+## Directory structure
+
+```text
+Capso/
+├── App/                     # Main app target (thin shell)
+│   ├── CapsoApp.swift       # @main entry point
+│   ├── MenuBar/             # Menu bar controller
+│   ├── Capture/             # Capture overlay, pinned screenshots
+│   ├── Recording/           # Recording coordinator, controls, toolbar
+│   ├── Camera/              # Webcam PiP window
+│   ├── AnnotationEditor/    # Annotation editor + beautify
+│   ├── OCR/                 # OCR coordinator, overlay, toast
+│   ├── QuickAccess/         # Floating preview window
+│   └── Preferences/         # Settings window
+├── Packages/
+│   ├── SharedKit/           # Settings, permissions, utilities
+│   ├── CaptureKit/          # ScreenCaptureKit wrapper
+│   ├── RecordingKit/        # Screen recording engine
+│   ├── CameraKit/           # AVFoundation webcam capture
+│   ├── AnnotationKit/       # Drawing/annotation system
+│   ├── OCRKit/              # Vision framework OCR
+│   ├── ExportKit/           # Video/GIF/image export
+│   └── EffectsKit/          # Cursor effects, click highlights
+└── project.yml              # XcodeGen project definition
+```
+
+## Dependency rules
+
+Packages depend only on `SharedKit` and system frameworks. No feature kit may import another feature kit.
+
+```swift
+// Allowed — RecordingKit importing SharedKit
+import SharedKit
+
+// Not allowed — RecordingKit importing CaptureKit
+import CaptureKit // ❌ cross-package feature dependency
+```
+
+<Tip>
+If two packages need to share a type, the type belongs in `SharedKit`, not in either feature kit.
+</Tip>
+
+## Swift 6 strict concurrency
+
+The project compiles with Swift 6's strict concurrency checking enabled (`SWIFT_VERSION = "6.0"`).
+
+- All UI coordinators and `@Observable` managers that touch AppKit are annotated `@MainActor`.
+- Types that cross actor boundaries conform to `Sendable` (structs by default; classes explicitly).
+- Use `@preconcurrency import` for frameworks that have not yet adopted `Sendable` (e.g. `ScreenCaptureKit`).
+- Prefer SwiftUI for new views; use `NSPanel` or `NSWindow` for overlays and system-level UI that requires AppKit-level control.
+
+```swift
+// Coordinator pattern used throughout App/
+@MainActor
+final class CaptureCoordinator {
+    private let manager = ScreenCaptureManager()
+    // ...
+}
+
+// Cross-actor value type
+public struct CaptureResult: Sendable {
+    public let image: CGImage
+    public let mode: CaptureMode
+    // ...
+}
+```
+
+## External dependencies
+
+These four packages are resolved from remote sources and declared in `project.yml`.
+
+| Package | Author | Version | Purpose |
+|---|---|---|---|
+| [KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) | sindresorhus | 2.2.1 | User-configurable global hotkeys |
+| [Defaults](https://github.com/sindresorhus/Defaults) | sindresorhus | 9.0.6 | Type-safe `UserDefaults` wrapper |
+| [LaunchAtLogin](https://github.com/sindresorhus/LaunchAtLogin-Modern) | sindresorhus | 1.1.0 | Login item registration |
+| [Sparkle](https://github.com/sparkle-project/Sparkle) | sparkle-project | 2.9.1 | Auto-update delivery |
+
+All four are consumed only by the `App/` target; no local package depends on them.
+
+For per-package details — public types, test commands, and contribution notes — see the [SPM package overview](/developer/packages).

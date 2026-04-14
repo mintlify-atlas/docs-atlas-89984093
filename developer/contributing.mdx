@@ -1,0 +1,91 @@
+---
+title: "Contribute to Capso: dev setup, style, and PR process"
+description: "Everything you need to contribute to Capso — development setup, Swift 6 code style conventions, the PR process, and how to find good first issues."
+---
+
+Capso is fully open source and welcomes contributions. Whether you're fixing a bug, adding an annotation tool, improving localization, or writing tests, this page covers the development conventions and PR process.
+
+## Before you start
+
+1. Check [open issues](https://github.com/lzhgus/Capso/issues) for existing discussion on your topic.
+2. For large changes (new features, architectural shifts), open an issue first to agree on the approach before writing code.
+3. For small fixes (typos, single-file bugs), submit a PR directly.
+
+## Architecture: where does your change belong?
+
+| Layer | Location | Purpose |
+|---|---|---|
+| Package | `Packages/[Kit]/` | Core logic — testable, no UI dependencies |
+| Coordinator | `App/Sources/[Feature]/` | Orchestrates UI flow, owns `NSWindow`/`NSPanel` |
+| View | `App/Sources/[Feature]/` | SwiftUI views and AppKit `NSView` subclasses |
+
+The `App/` target is a thin shell. Business logic belongs in the appropriate package under `Packages/`. Packages depend only on `SharedKit` and system frameworks — never on each other.
+
+## Code style
+
+- **Swift 6 strict concurrency is enforced.** All UI coordinators must be `@MainActor`.
+- Types crossing actor boundaries must conform to `Sendable`.
+- Use `@preconcurrency import` for frameworks that haven't adopted Sendable (e.g. `ScreenCaptureKit`).
+- Prefer SwiftUI for new UI. Use AppKit (`NSPanel`, `NSWindow`) only for overlays and system-level UI.
+- No linter or formatter is configured — follow the existing code patterns in the file you're editing.
+
+## Pull request process
+
+<Steps>
+  <Step title="Fork and branch">
+    Fork the repository on GitHub and create a feature branch:
+
+    ```bash
+    git checkout -b feature/your-feature-name
+    ```
+  </Step>
+  <Step title="Make your changes">
+    Keep the PR focused — one feature or fix per PR. Don't mix refactoring with feature work.
+  </Step>
+  <Step title="Regenerate the project if needed">
+    If you added, removed, or moved source files, or modified `project.yml`:
+
+    ```bash
+    xcodegen generate
+    ```
+  </Step>
+  <Step title="Build and test">
+    ```bash
+    # Build check
+    xcodebuild -project Capso.xcodeproj -scheme Capso build
+
+    # Run relevant package tests
+    swift test --package-path Packages/AnnotationKit
+    ```
+  </Step>
+  <Step title="Submit the PR">
+    Open a PR with a clear title and description explaining what changed and why. Include screenshots or GIFs for any UI changes.
+  </Step>
+</Steps>
+
+## Good first issues
+
+Look for issues labeled [`good first issue`](https://github.com/lzhgus/Capso/labels/good%20first%20issue) on GitHub. Some particularly welcoming areas:
+
+<CardGroup cols={2}>
+  <Card title="New annotation tools" icon="paintbrush" href="https://github.com/lzhgus/Capso/tree/main/Packages/AnnotationKit">
+    Add tools like magnifier, spotlight, or ruler to AnnotationKit
+  </Card>
+  <Card title="Localization" icon="language" href="https://github.com/lzhgus/Capso/issues">
+    Capso supports EN, ZH-Hans, JP, KR — help expand or improve translations
+  </Card>
+  <Card title="Package tests" icon="flask" href="https://github.com/lzhgus/Capso/tree/main/Packages">
+    Write unit tests for existing packages to improve coverage
+  </Card>
+  <Card title="UI polish" icon="star" href="https://github.com/lzhgus/Capso/issues">
+    Accessibility improvements and visual refinements to SwiftUI views
+  </Card>
+</CardGroup>
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the same [BSL 1.1 license](https://github.com/lzhgus/Capso/blob/main/LICENSE) that covers the project. Every release version auto-converts to Apache 2.0 three years after its release date.
+
+<Note>
+Questions? Open a [GitHub Discussion](https://github.com/lzhgus/Capso/issues) or file an issue — the maintainers are responsive.
+</Note>

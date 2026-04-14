@@ -1,0 +1,84 @@
+---
+title: "OCRKit: on-device Vision framework text recognition"
+description: "OCRKit wraps Apple's Vision framework for on-device text recognition. Returns TextRegion values with pixel-coordinate bounding boxes and confidence scores."
+---
+
+OCRKit is the Swift package that powers Capso's OCR features. It wraps `VNRecognizeTextRequest` from Apple's Vision framework to perform fully on-device text recognition — no network calls, no data leaves the Mac. The package exposes a static enum `TextRecognizer` and a `TextRegion` result struct.
+
+## TextRecognizer
+
+`TextRecognizer` is a static enum — call its methods directly without instantiating it. The primary method is `recognize(image:languages:level:detectURLs:)`, which returns regions sorted top-to-bottom then left-to-right.
+
+```swift ocrkit-usage.swift
+import OCRKit
+import CoreGraphics
+
+// Recognize all text in a CGImage
+let regions: [TextRegion] = try await TextRecognizer.recognize(
+    image: captureResult.image,
+    languages: nil,      // nil = auto-detect language
+    level: .accurate,
+    detectURLs: true
+)
+
+for region in regions {
+    print(region.text)         // recognized string
+    print(region.boundingBox)  // CGRect in pixel coords (top-left origin)
+    print(region.confidence)   // Float 0.0–1.0
+    print(region.isURL)        // true if the text looks like a URL
+}
+```
+
+### Function signatures
+
+| Function | Description |
+|---|---|
+| `recognize(image:languages:level:detectURLs:)` | Recognize all text regions; returns `[TextRegion]` sorted reading order |
+| `recognizeText(image:keepLineBreaks:languages:)` | Convenience: joins all regions into a single `String` |
+
+**`recognize` parameters:**
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `image` | `CGImage` | — | The image to analyze |
+| `languages` | `[String]?` | `nil` | BCP-47 language hints (e.g. `["zh-Hans"]`). `nil` enables auto-detection. |
+| `level` | `RecognitionLevel` | `.accurate` | `.fast` or `.accurate` |
+| `detectURLs` | `Bool` | `true` | Flag regions that match a URL pattern |
+
+## TextRegion
+
+`TextRegion` is an `Identifiable Sendable` struct representing a single recognized block of text. Bounding boxes are in **image pixel coordinates** (top-left origin), converted from Vision's normalized bottom-left coordinate system.
+
+```swift text-region.swift
+public struct TextRegion: Identifiable, Sendable {
+    public let id: UUID
+    public let text: String
+    /// Bounding box in image coordinates (top-left origin, pixel dimensions).
+    public let boundingBox: CGRect
+    public let confidence: Float
+    public let isURL: Bool
+}
+```
+
+<Note>
+OCRKit converts Vision's normalized bottom-left bounding boxes to top-left pixel coordinates before returning them, so you can use `boundingBox` directly with CoreGraphics drawing calls.
+</Note>
+
+## Running tests
+
+```bash
+swift test --package-path Packages/OCRKit
+```
+
+<Warning>
+OCR accuracy drops significantly on very small text (below ~12pt effective size). For best results, capture at 2x resolution.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="Package overview" icon="boxes-stacked" href="/developer/packages">
+    See all 8 Capso packages
+  </Card>
+  <Card title="OCR user guide" icon="eye" href="/annotation/ocr">
+    How to use OCR in the Capso app
+  </Card>
+</CardGroup>

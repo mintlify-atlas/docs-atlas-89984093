@@ -1,0 +1,148 @@
+---
+title: "Capso preferences and app settings reference guide"
+description: "Reference for every setting in the Capso Preferences window — General, Screenshots, Recording, Camera, Quick Access, OCR, and Export tabs explained."
+---
+
+The Capso Preferences window gives you fine-grained control over how every part of the app behaves. Open it by clicking the Capso menu bar icon and selecting **Preferences…**, or by pressing the keyboard shortcut you have configured. Settings are stored in `UserDefaults` and take effect immediately — no restart required.
+
+## General
+
+The **General** tab (`gearshape`) controls startup behavior and audio feedback.
+
+| Setting | Default | Description |
+|---|---|---|
+| `startAtLogin` | `false` | Launch Capso automatically when you log in to macOS. Uses [sindresorhus/LaunchAtLogin-Modern](https://github.com/sindresorhus/LaunchAtLogin-Modern). |
+| `playShutterSound` | `true` | Play the system shutter sound after every screenshot capture. |
+| `showMenuBarIcon` | `true` | Keep the Capso icon visible in the macOS menu bar. |
+
+<Note>
+The **Launch at Login** toggle uses the system-level service from LaunchAtLogin-Modern, so it integrates cleanly with macOS privacy controls and does not require the app to be open to register the login item.
+</Note>
+
+## Screenshots
+
+The **Screenshots** tab (`camera`) controls what happens immediately after a capture and how the image is saved.
+
+### After capture
+
+| Setting | Default | Description |
+|---|---|---|
+| `screenshotShowPreview` | `true` | Display the Quick Access floating panel after capture. From the panel you can copy, save, annotate, run OCR, or pin the screenshot. |
+| `screenshotAutoCopy` | `false` | Copy the captured image to the clipboard immediately, without any interaction. |
+| `screenshotAutoSave` | `false` | Save the captured image to the export location automatically. |
+
+### Capture behavior
+
+| Setting | Default | Description |
+|---|---|---|
+| `captureWindowShadow` | `true` | Composite a frosted-glass drop shadow around window captures. The shadow uses the actual pixels behind the window. |
+| `freezeScreen` | `true` | Freeze the live desktop before the selection overlay appears. Preserves transient UI such as dropdown menus and tooltips. |
+| `showMagnifier` | `false` | Show a pixel-level magnifier loupe near the cursor during area selection for precise alignment. |
+| `rememberLastCaptureArea` | `false` | Pre-fill the area selection with the dimensions and position from the previous area capture. |
+
+### Format
+
+| Setting | Default | Description |
+|---|---|---|
+| `screenshotFormat` | `png` | File format for saved screenshots. Choose `png` for lossless quality or `jpeg` for smaller file sizes. |
+
+## Recording
+
+The **Recording** tab (`record.circle`) controls cursor visibility, click effects, and recording start behavior.
+
+### Cursor
+
+| Setting | Default | Description |
+|---|---|---|
+| `showCursor` | `true` | Include the mouse cursor in the recording. |
+| `highlightClicks` | `true` | Show a circular ripple animation around the cursor on each mouse click. |
+
+### Behavior
+
+| Setting | Default | Description |
+|---|---|---|
+| `showCountdown` | `true` | Display a 3-2-1 countdown overlay for three seconds before recording starts. |
+| `rememberLastRecordingArea` | `false` | Pre-fill the area selection with the region from the previous recording. |
+| `dimScreenWhileRecording` | `true` | Slightly dim the area outside the capture region while recording is active. |
+
+### Format
+
+| Setting | Default | Description |
+|---|---|---|
+| `recordingFormat` | `mp4` | Default output format. Choose `mp4` for video or `gif` for an animated image. The format can also be switched per-session in the recording toolbar. |
+| `exportQuality` | `maximum` | Quality preset applied to video and GIF exports. See the [Export](#export) section for preset details. |
+
+<Tip>
+`showCountdown` is enabled by default so you have three seconds to arrange your screen before recording begins. The countdown itself does not appear in the output file.
+</Tip>
+
+## Camera
+
+The **Camera** tab controls the webcam picture-in-picture (PiP) overlay shown during screen recordings.
+
+| Setting | Default | Description |
+|---|---|---|
+| `cameraShape` | `circle` | Shape of the webcam PiP overlay. Options: `circle`, `square` (1:1 with rounded corners), `landscape` (16:9), `portrait` (9:16). |
+| `cameraSize` | `medium` | Size preset for the PiP window. `small` = 100 pt, `medium` = 150 pt, `large` = 220 pt (shorter dimension). |
+| `cameraMirror` | `true` | Horizontally mirror the webcam feed in the PiP overlay. |
+
+<Note>
+You can also drag the corner of the PiP overlay during a recording to set a custom size. The custom size is stored separately in `cameraCustomSizePt` and overrides the size preset until you reset it.
+</Note>
+
+## Quick Access
+
+The **Quick Access** tab (`bolt`) controls the floating panel that appears after every screenshot.
+
+### Position
+
+| Setting | Default | Description |
+|---|---|---|
+| `quickAccessPosition` | `bottomLeft` | Corner of the screen where the floating panel appears. Options: `bottomLeft` or `bottomRight`. |
+
+### Auto-close
+
+| Setting | Default | Description |
+|---|---|---|
+| `quickAccessAutoClose` | `false` | Automatically dismiss the Quick Access panel after a timeout. |
+| `quickAccessAutoCloseInterval` | `5` | Number of seconds before the panel is dismissed. Options: `5`, `10`, `15`, or `30` seconds. Only active when `quickAccessAutoClose` is enabled. |
+
+## OCR
+
+The **OCR** tab (`text.viewfinder`) controls how recognized text is processed and formatted.
+
+| Setting | Default | Description |
+|---|---|---|
+| `ocrKeepLineBreaks` | `true` | Preserve the original line structure when copying recognized text to the clipboard. Disable to join all lines into a single paragraph. |
+| `ocrDetectLinks` | `true` | Automatically detect URLs in recognized text and convert them to clickable links. |
+| `ocrPrimaryLanguage` | `nil` (auto) | Primary language hint passed to the Vision framework's text recognizer. When unset, the recognizer auto-detects the language. |
+
+<Note>
+Capso uses Apple's Vision framework (`VNRecognizeTextRequest`) for on-device OCR. No text is sent to external servers.
+</Note>
+
+## Export
+
+The **Export** tab (`folder`) controls where files are saved and the quality of exported recordings.
+
+| Setting | Default | Description |
+|---|---|---|
+| `exportLocation` | `~/Desktop` | Folder where screenshots and recordings are saved when auto-save or explicit export is used. Click **Choose…** to select a different folder. |
+| `exportQuality` | `maximum` | Quality preset for video and GIF exports. |
+
+### Export quality presets
+
+| Preset | Description |
+|---|---|
+| `maximum` | Highest available bitrate and resolution. Best for archiving or professional use. |
+| `social` | Balanced quality and file size. Suitable for sharing on social platforms. |
+| `web` | Smallest file size. Optimized for embedding in web pages or emails. |
+
+<CardGroup cols={2}>
+  <Card title="Keyboard shortcuts" icon="keyboard" href="/configuration/keyboard-shortcuts">
+    Configure global shortcuts for every capture and recording action.
+  </Card>
+  <Card title="Capture screenshots" icon="camera" href="/screenshots/capturing">
+    Learn about area, fullscreen, and window capture modes.
+  </Card>
+</CardGroup>

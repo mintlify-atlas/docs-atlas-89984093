@@ -1,0 +1,74 @@
+---
+title: "Take area, fullscreen, and window screenshots in Capso"
+description: "Learn how to capture screenshots with Capso's three modes — area, fullscreen, and window — triggered from the menu bar or a global keyboard shortcut."
+---
+
+Capso gives you three distinct capture modes so you can grab exactly what you need: a custom region, an entire display, or a specific app window. Every mode uses Apple's ScreenCaptureKit under the hood and delivers a full-resolution image — no downscaling, no watermarks.
+
+## Capture modes
+
+### Area capture
+
+Area capture lets you draw a rectangle over any part of the screen. As you drag, a dimension label (e.g. `1280 x 720`) floats below the selection so you always know the exact pixel size of the region you are about to capture. Release the mouse button to complete the capture.
+
+If `rememberLastCaptureArea` is enabled in Settings, Capso pre-fills the selection with the dimensions and position of your previous area capture. This is useful for capturing the same region repeatedly — for example, a dashboard panel or a fixed-size UI element.
+
+<Note>
+Enable **Freeze screen** (`freezeScreen`) to lock the desktop in place during selection. This preserves dropdown menus, tooltips, and other transient UI that would disappear the moment Capso's overlay appears.
+</Note>
+
+### Fullscreen capture
+
+Fullscreen capture grabs the entire display the cursor is on at the moment you trigger the action. On a multi-monitor setup Capso picks the screen that contains the mouse pointer, so you never have to specify which display to capture.
+
+### Window capture
+
+Window capture highlights on-screen windows as you move the cursor over them. A label showing the app name and window title appears above each window so you can identify it at a glance. Click a window to capture it.
+
+By default, window captures include a frosted-glass shadow composited from the real desktop behind the window (`captureWindowShadow: true`). Disabling this setting captures the window content only, with no padding or shadow.
+
+<Tip>
+The frosted-glass shadow uses the actual pixels behind the window — it reflects your real wallpaper and open apps rather than a generic drop shadow.
+</Tip>
+
+## How to trigger a capture
+
+<Tabs>
+  <Tab title="Menu bar">
+    Click the Capso icon in the menu bar. The menu lists all three capture modes plus any configured keyboard shortcut next to each item. Select a mode to start the capture immediately.
+  </Tab>
+  <Tab title="Keyboard shortcut">
+    Every capture mode has a configurable global shortcut that works regardless of which app is in focus. Set shortcuts in **Settings → Keyboard Shortcuts**. The shortcut fires the capture even when Capso itself is in the background.
+  </Tab>
+</Tabs>
+
+## What happens after a capture
+
+Once a capture completes, Capso plays the system shutter sound (the same one macOS uses for `⌘⇧3`) and the [Quick Access panel](/screenshots/quick-access) appears. You can copy, save, annotate, run OCR, or pin the screenshot directly from that panel.
+
+Automatic post-capture actions can bypass the panel entirely:
+
+- If `screenshotAutoCopy` is on, the image is written to the clipboard immediately.
+- If `screenshotAutoSave` is on, the image is saved to the configured export location without prompting.
+
+Both settings can be toggled independently, and they run in addition to — not instead of — showing the Quick Access panel when `screenshotShowPreview` is on.
+
+## Capture settings reference
+
+| Setting | Default | Description |
+|---|---|---|
+| `freezeScreen` | `true` | Freeze the live desktop before the selection overlay appears. Preserves transient UI like menus and tooltips. |
+| `screenshotAutoCopy` | `false` | Automatically copy the captured image to the clipboard after every capture. |
+| `screenshotAutoSave` | `false` | Automatically save the captured image to the export location after every capture. |
+| `captureWindowShadow` | `true` | Composite a frosted-glass drop shadow around window captures. |
+| `rememberLastCaptureArea` | `false` | Pre-fill the area selection with the dimensions from the most recent area capture. |
+| `showMagnifier` | `false` | Show a pixel magnifier loupe near the cursor during area selection to help with precise alignment. |
+
+<CardGroup cols={2}>
+  <Card title="Quick Access panel" icon="layout-panel-top" href="/screenshots/quick-access">
+    Learn what you can do with a screenshot immediately after it is captured.
+  </Card>
+  <Card title="Pin to screen" icon="pin" href="/screenshots/pin-to-screen">
+    Float any screenshot as an always-on-top window for reference while you work.
+  </Card>
+</CardGroup>

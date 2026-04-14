@@ -1,0 +1,92 @@
+---
+title: "CaptureKit: ScreenCaptureKit screenshot API reference"
+description: "Public API reference for CaptureKit — the ScreenCaptureKit-backed package that captures fullscreen, window, area, and desktop screenshots."
+---
+
+CaptureKit is a thin async wrapper around Apple's `ScreenCaptureKit` framework. It exposes a single static enum, `ScreenCaptureManager`, with four methods that each return a `CaptureResult` carrying the captured image and metadata. The package has no UI dependencies and is safe to call from any actor boundary because all its value types conform to `Sendable`.
+
+## Public types
+
+| Type / Function | Description |
+|---|---|
+| `ScreenCaptureManager` | Static enum. Entry point for all capture operations. |
+| `captureFullscreen(displayID:)` | Captures the entire display at its native resolution. |
+| `captureWindow(windowID:includeShadow:)` | Captures a single window, with or without its drop shadow. |
+| `captureArea(rect:displayID:)` | Captures a user-defined rectangular region of a display. |
+| `captureDesktopBehindWindow(windowID:padding:)` | Captures the desktop behind a window for shadow compositing. Returns `CGImage`. |
+| `CaptureMode` | Enum of capture modes: `.area`, `.fullscreen`, `.window`, `.scrolling`. |
+| `CaptureResult` | Sendable struct returned by every capture method. |
+| `CaptureError` | Error enum thrown on failure. |
+
+## CaptureResult fields
+
+| Field | Type | Description |
+|---|---|---|
+| `image` | `CGImage` | The captured image at the display's native scale. |
+| `mode` | `CaptureMode` | The mode used to produce this result. |
+| `captureRect` | `CGRect` | The region that was captured, in display coordinates. |
+| `windowName` | `String?` | Title of the captured window (window mode only). |
+| `appName` | `String?` | Name of the app that owns the captured window. |
+| `timestamp` | `Date` | When the capture was taken. |
+| `displayID` | `CGDirectDisplayID` | The display the capture originated from. |
+
+## CaptureError cases
+
+| Case | Description |
+|---|---|
+| `.noDisplayFound` | No matching display was found for the given ID. |
+| `.windowNotFound(CGWindowID)` | No shareable window matched the provided window ID. |
+| `.capturePermissionDenied` | Screen Recording permission has not been granted. |
+| `.captureFailed(String)` | A lower-level ScreenCaptureKit error occurred; the associated value contains a reason string. |
+
+## Usage example
+
+```swift
+import CaptureKit
+import CoreGraphics
+
+// Capture the main display
+let result = try await ScreenCaptureManager.captureFullscreen()
+print(result.mode)        // .fullscreen
+print(result.captureRect) // display frame in points
+
+// Capture a specific window (with shadow)
+let windowResult = try await ScreenCaptureManager.captureWindow(
+    windowID: myWindowID,
+    includeShadow: true
+)
+print(windowResult.appName ?? "unknown")
+
+// Capture a user-selected rectangle
+let areaResult = try await ScreenCaptureManager.captureArea(
+    rect: CGRect(x: 100, y: 100, width: 400, height: 300),
+    displayID: CGMainDisplayID()
+)
+
+// Capture the desktop behind a window (for compositing)
+let desktop = try await ScreenCaptureManager.captureDesktopBehindWindow(
+    windowID: myWindowID,
+    padding: 60
+)
+```
+
+## CaptureMode
+
+```swift
+public enum CaptureMode: String, Sendable {
+    case area
+    case fullscreen
+    case window
+    case scrolling
+}
+```
+
+`CaptureMode` is serializable via its `rawValue` and safe to pass across actor boundaries. The `.scrolling` case is reserved for long-page captures composed from multiple frames; it is not produced by any of the static capture methods above.
+
+<Note>
+Screen Recording permission must be granted before calling any method on `ScreenCaptureManager`. Use `PermissionManager.checkScreenRecordingPermission()` from SharedKit to verify permission state before presenting capture UI.
+</Note>
+
+---
+
+[Back to package reference](/developer/packages)

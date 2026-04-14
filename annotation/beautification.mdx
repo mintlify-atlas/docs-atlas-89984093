@@ -1,0 +1,57 @@
+---
+title: "Beautify screenshots with backgrounds and shadows"
+description: "Wrap any screenshot in a styled background with custom color or gradient, padding, rounded corners, and a drop shadow before sharing or publishing."
+---
+
+Beautification adds a decorative frame around your screenshot without altering the captured content. The result is a presentation-ready image: the screenshot sits centered inside a larger canvas with a colored or gradient background, optional rounded corners on the screenshot itself, and a configurable drop shadow beneath it.
+
+## What beautification does
+
+When you apply beautification, Capso composites your screenshot onto a new, larger canvas. The original pixel data is untouched — the padding, shadow, and background are rendered on top as a separate layer. You can adjust or remove any option at any time before exporting.
+
+This is especially useful for:
+
+- Social media posts, where a plain screenshot can look unpolished against a white feed.
+- Documentation and blog images, where consistent visual framing improves readability.
+- Presentations, where a bit of breathing room and a drop shadow make screenshots feel intentional rather than pasted in.
+
+## Accessing beautification
+
+Open any screenshot in the annotation editor (Quick Access → **Annotate**), then switch to the **Beautify** tab in the toolbar. All options take effect immediately and update the preview in real time.
+
+## Options
+
+<Tabs>
+  <Tab title="Background">
+    Choose between a solid color and a gradient background.
+
+    **Solid color** — Pick any color using the system color panel. A neutral gray or a color sampled from your screenshot's dominant tone often works well.
+
+    **Gradient** — Select two colors and an angle. A diagonal gradient in complementary tones is a common choice for developer screenshots shared on social media.
+
+    <Tip>
+      Choosing a background color that matches your brand or app's accent color keeps screenshots visually consistent across documentation.
+    </Tip>
+  </Tab>
+  <Tab title="Padding">
+    Padding controls how much space surrounds the screenshot inside the background canvas. Larger values produce more breathing room.
+
+    The padding is uniform on all four sides. A value around 40–60 px works well for most social-media formats; reduce it for compact documentation images where every pixel of content matters.
+  </Tab>
+  <Tab title="Corner radius">
+    Rounds the corners of the screenshot (not the background canvas). A small radius — 8–12 px — softens the screenshot and makes it look native to macOS; a larger value creates a pill-like crop.
+
+    Setting the radius to 0 leaves the screenshot with sharp corners, which is appropriate when the captured content already has its own rounded window chrome.
+  </Tab>
+  <Tab title="Shadow">
+    The drop shadow is rendered beneath the screenshot layer. You can toggle it on or off. When enabled, the shadow uses a soft, diffuse spread that suits light and dark backgrounds alike.
+
+    <Note>
+      If you capture a window with **Capture Window Shadow** enabled in Preferences, the window already includes a system shadow. You may want to disable the beautification shadow in that case to avoid doubling the effect.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Exporting a beautified screenshot
+
+Beautification is non-destructive while you're in the editor. When you click **Copy** or **Save**, Capso renders the final composite — background, padding, rounded corners, and shadow — into a single flat image. The exported file is larger than the original screenshot because it includes the background canvas.

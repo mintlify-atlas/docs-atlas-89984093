@@ -1,0 +1,94 @@
+---
+title: "Pin screenshots as always-on-top floating windows"
+description: "Pin any screenshot as a floating overlay that stays above every app. Lock it in place or enable click-through mode to use it like a transparent HUD."
+---
+
+Pin to Screen lets you float a screenshot above every other window on your Mac so it stays visible no matter which app you switch to. It is useful any time you need to keep a reference image in view while you work — a design mockup, a ticket description, a chart, a code snippet — without resizing or rearranging your workspace.
+
+## How pinning works
+
+When you pin a screenshot, Capso creates a borderless `NSPanel` with a floating window level (`NSWindow.Level.floating`). The panel:
+
+- Stays visible above all normal app windows, including full-screen apps on the same Space.
+- Joins all Spaces (`canJoinAllSpaces`) so it follows you as you switch desktops.
+- Has no title bar or standard window chrome — only your screenshot is shown.
+- Displays with `hasShadow: true` so it reads clearly against any background.
+
+The panel is initially sized to fit the screenshot within a maximum long-side of 800 pt, centered on the display. You can resize it freely after pinning.
+
+## How to pin a screenshot
+
+<Steps>
+  <Step title="Take a screenshot">
+    Use any capture mode — area, fullscreen, or window. The [Quick Access panel](/screenshots/quick-access) appears after the capture completes.
+  </Step>
+  <Step title="Click Pin">
+    Click the **Pin** button in the Quick Access panel. The panel closes and the screenshot immediately appears as a floating overlay.
+  </Step>
+  <Step title="Position and resize">
+    Drag the image anywhere on screen to reposition it. Drag the resize handle in the bottom-right corner to scale it up or down while preserving the aspect ratio. Keyboard shortcuts `⌘+` and `⌘−` also scale the window in 10% increments.
+  </Step>
+</Steps>
+
+## Chrome controls
+
+A thin chrome layer floats above the pinned image and appears when you hover over it. It provides two controls:
+
+| Control | Icon | Behavior |
+|---|---|---|
+| **Close** | `✕` | Removes the pinned window. |
+| **Lock** | `🔒` | Toggles lock mode (see below). |
+
+A zoom badge in the center of the chrome briefly shows the current scale percentage when you resize the window, then fades out automatically.
+
+## Lock mode
+
+Clicking the lock button enables lock mode:
+
+- The window's `ignoresMouseEvents` property is set to `true`, making it fully **click-through** — clicks and drags pass straight through to whatever is behind it.
+- The window's opacity drops to 72% (`alphaValue = 0.72`) to visually indicate that it is locked and to reduce distraction.
+- Resize handles are disabled so the image cannot be accidentally moved or scaled.
+
+Click the lock button again to unlock. The window returns to full opacity and resumes normal interaction.
+
+<Tip>
+Use lock mode when the pinned screenshot is a reference you just want to glance at — a color swatch, a layout guide, or a password you are typing in — where accidentally clicking the overlay would be annoying.
+</Tip>
+
+## Opacity adjustment
+
+Right-click the pinned window to open a context menu with four opacity presets: 100%, 75%, 50%, and 25%. Reducing opacity lets you see both the screenshot and the content behind it at the same time — useful when comparing a reference image to live content.
+
+<Note>
+The context menu also provides **Copy** and **Save** shortcuts so you can capture the image to the clipboard or save it to disk without closing the pinned window.
+</Note>
+
+## Multiple pinned windows
+
+You can pin more than one screenshot at a time. Each pinned window is independent — you can position, resize, lock, and close them individually. There is no hard limit on how many windows you can keep pinned simultaneously.
+
+## Use cases
+
+<CardGroup cols={2}>
+  <Card title="Reference while coding" icon="code">
+    Pin a design spec or error message next to your editor so you can refer to it without alt-tabbing.
+  </Card>
+  <Card title="Image comparison" icon="images">
+    Pin a before screenshot and then take an after screenshot, then position them side by side.
+  </Card>
+  <Card title="Persistent reminders" icon="bell">
+    Pin a task list, ticket, or checklist that stays visible while you work through the steps.
+  </Card>
+  <Card title="Transparent overlay" icon="layers">
+    Lock the window and reduce opacity to use the screenshot as a translucent guide — like tracing paper on screen.
+  </Card>
+</CardGroup>
+
+<CardGroup cols={2}>
+  <Card title="Quick Access panel" icon="layout-panel-top" href="/screenshots/quick-access">
+    The panel where you trigger the Pin action after every capture.
+  </Card>
+  <Card title="Capture modes" icon="camera" href="/screenshots/capturing">
+    Take the screenshot you want to pin using area, fullscreen, or window capture.
+  </Card>
+</CardGroup>

@@ -1,0 +1,89 @@
+---
+title: "Webcam picture-in-picture during screen recording"
+description: "Overlay your webcam in a circle, square, landscape, or portrait frame during recordings — drag, resize, snap to corners, or expand to fullscreen."
+---
+
+Capso can composite your webcam feed over the recording area as a picture-in-picture (PiP) overlay. The overlay is drawn directly on screen so it appears in the captured output. You can reposition and resize the PiP at any time, even while recording is in progress.
+
+<Note>
+Camera access is required. macOS will prompt you the first time you enable the webcam in the recording toolbar. If you previously denied access, grant it in **System Settings → Privacy & Security → Camera → Capso**.
+</Note>
+
+## Enabling the webcam
+
+In the recording setup toolbar (shown after you select a capture area), click the **Camera** icon. A menu lists every available camera device. Select a device to enable the PiP preview immediately — you can see and adjust it before you start recording. Select **None** to disable the overlay.
+
+## Shape options
+
+The PiP frame ships in four shapes, chosen from the **Camera** menu under the SHAPE section:
+
+| Shape | Aspect ratio | Description |
+|---|---|---|
+| **Circle** | 1:1 | Round crop — the classic webcam look |
+| **Square** | 1:1 | Rounded-rectangle crop |
+| **Landscape** | 16:9 | Wide-format frame, good for full-face shots |
+| **Portrait** | 9:16 | Tall frame, suitable for full-body or standing shots |
+
+The shape is stored in the `cameraShape` setting and applied immediately when changed, including during a live recording.
+
+## Size presets
+
+Three size presets control the length of the shorter edge of the PiP:
+
+| Preset | Shorter dimension |
+|---|---|
+| Small | 100 pt |
+| Medium | 150 pt (default) |
+| Large | 220 pt |
+
+Select a preset from the SIZE section of the **Camera** menu. The longer dimension is calculated automatically from the shape's aspect ratio.
+
+## Custom resize
+
+Drag the corner handle on the PiP window to resize it freely. Dragging sets a custom size (`cameraCustomSizePt`) that overrides the preset. To return to a preset, select Small, Medium, or Large from the menu — this clears the custom value.
+
+## Snap to corners
+
+Drag the PiP near any corner of the screen and release. Capso snaps it to that corner with a small inset so it does not overlap the screen edge. This lets you quickly dock the overlay to a consistent position without precise dragging.
+
+## Mirror
+
+The **Mirror** toggle in the **Camera** menu flips the webcam feed horizontally (`cameraMirror`). Mirroring is on by default. Turn it off if you are sharing a physical document or a whiteboard where the orientation needs to match what viewers expect.
+
+## Presentation mode
+
+Click the PiP overlay at any time to expand it to fullscreen. The webcam feed fills the entire display while the rest of your screen content is hidden. Click again to restore the PiP to its previous size and position.
+
+<Steps>
+  <Step title="Enter presentation mode">
+    Click anywhere on the PiP overlay. The feed smoothly expands to fill the display.
+  </Step>
+  <Step title="Continue presenting">
+    Your screen recording continues running in the background. Audio and the captured region keep recording normally.
+  </Step>
+  <Step title="Exit presentation mode">
+    Click anywhere on the fullscreen feed to collapse it back to the PiP window. You can also press **Esc** to exit.
+  </Step>
+</Steps>
+
+<Tip>
+Presentation mode is useful for introducing yourself at the start of a tutorial recording. Enter it before you start recording, deliver your intro, then exit to return to your screen content.
+</Tip>
+
+## Camera settings reference
+
+| Setting | Default | Description |
+|---|---|---|
+| `cameraShape` | `circle` | PiP frame shape: `circle`, `square`, `landscape`, or `portrait`. |
+| `cameraSize` | `medium` | Preset size: `small` (100 pt), `medium` (150 pt), or `large` (220 pt). |
+| `cameraCustomSizePt` | `0` | Custom shorter-edge size in points. `0` means use the preset. Set when you drag the resize handle. |
+| `cameraMirror` | `true` | Flip the webcam feed horizontally. |
+
+<CardGroup cols={2}>
+  <Card title="Getting started with recording" icon="video" href="/recording/getting-started">
+    Learn how to select an area, start recording, and use the controls bar.
+  </Card>
+  <Card title="Export recordings" icon="file-video" href="/recording/export">
+    Choose MP4 or GIF, set quality, and save the finished file.
+  </Card>
+</CardGroup>

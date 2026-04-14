@@ -1,0 +1,97 @@
+---
+title: "Annotate screenshots with the Capso annotation editor"
+description: "Mark up screenshots with 8 tools — arrows, shapes, text, freehand, pixelate, counters, and crop — plus color picker, stroke width, and full undo/redo."
+---
+
+The Capso annotation editor gives you a full set of markup tools to highlight, explain, or redact any screenshot before sharing or saving it. Every annotation is vector-based and fully editable: you can move, resize, recolor, or delete any object after placing it.
+
+## Opening the editor
+
+<Steps>
+  <Step title="Take a screenshot">
+    Use any capture mode — area, fullscreen, or window. The Quick Access panel appears at the corner of your screen.
+  </Step>
+  <Step title="Click Annotate">
+    In the Quick Access panel, click the **Annotate** button. The annotation editor opens with your screenshot loaded.
+  </Step>
+  <Step title="Pick a tool and draw">
+    Select a tool from the toolbar, set your color and stroke width, then draw directly on the screenshot.
+  </Step>
+  <Step title="Save or copy">
+    When you're done, copy the annotated image to the clipboard or save it to disk.
+  </Step>
+</Steps>
+
+## Annotation tools
+
+Capso provides eight annotation tools, each implemented as a distinct object type in `AnnotationKit`.
+
+<CardGroup cols={2}>
+  <Card title="Arrow" icon="arrow-right">
+    Draw a directed arrow from a start point to an end point. The arrowhead scales automatically with the stroke width for visual consistency.
+  </Card>
+  <Card title="Rectangle" icon="square">
+    Place a rectangle or rounded rectangle over any area. Supports both stroke-only and filled modes, with an adjustable corner radius.
+  </Card>
+  <Card title="Ellipse" icon="circle">
+    Draw an ellipse or circle. Like rectangles, ellipses can be rendered as outlines or filled shapes.
+  </Card>
+  <Card title="Text" icon="type">
+    Click anywhere to place a text label. Adjust font size and color; the system font is used by default.
+  </Card>
+  <Card title="Freehand" icon="pencil">
+    Draw freely with your mouse or trackpad. Strokes are smoothed automatically using Bézier curves so lines stay clean even at low input speeds.
+  </Card>
+  <Card title="Pixelate" icon="grid-2x2">
+    Drag a rectangle to pixelate or blur a region of the screenshot. Uses Core Image's `CIPixellate` filter on the original image data for a true blur — not just a translucent overlay.
+  </Card>
+  <Card title="Counter" icon="hash">
+    Place numbered circle markers on the image. Each new counter increments the number automatically, making step-by-step callouts quick to create.
+  </Card>
+  <Card title="Crop" icon="crop">
+    Define a crop region. The crop is applied when you export — it doesn't permanently discard image data while you're still editing.
+  </Card>
+</CardGroup>
+
+## Color and stroke controls
+
+The toolbar exposes the following controls for every tool that supports them:
+
+| Control | Description |
+|---|---|
+| Color picker | Choose any color using the system color panel. The selected color applies to new objects and to any currently selected object. |
+| Stroke width | Adjust line thickness. Arrow arrowheads and freehand smoothing both scale relative to this value. |
+| Fill toggle | Available for Rectangle and Ellipse. Switches between stroke-only and filled rendering. |
+| Opacity | Set the transparency of the stroke or fill color. |
+
+## Undo and redo
+
+The editor maintains a full undo/redo history backed by `AnnotationDocument`. Every action that modifies the canvas — adding an object, moving it, or deleting it — pushes a snapshot to the undo stack.
+
+| Action | Keyboard shortcut |
+|---|---|
+| Undo | `Cmd Z` |
+| Redo | `Cmd Shift Z` |
+
+<Note>
+  Undo history is scoped to the current editor session. Closing the editor clears the stack.
+</Note>
+
+The `canUndo` and `canRedo` properties on `AnnotationDocument` drive the enabled state of the toolbar buttons — they are `false` when the respective stacks are empty.
+
+## Saving and exporting
+
+When you're done annotating, click **Copy** to write the annotated image to the clipboard, or **Save** to export it to disk. The exported file is a flat PNG or JPEG that includes all annotation objects rendered onto the screenshot — not a layered document.
+
+<Tip>
+Use **Beautify** before saving to add a background, padding, rounded corners, or a drop shadow to your annotated screenshot. See [Screenshot beautification](/annotation/beautification).
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="Screenshot beautification" icon="sparkles" href="/annotation/beautification">
+    Add backgrounds, padding, rounded corners, and shadows to screenshots.
+  </Card>
+  <Card title="OCR text extraction" icon="eye" href="/annotation/ocr">
+    Extract text from any screenshot using Apple Vision.
+  </Card>
+</CardGroup>

@@ -1,0 +1,90 @@
+---
+title: "Install Capso on macOS — system requirements and setup"
+description: "Download the signed DMG, install via Homebrew Cask, or build from source. Requires macOS 15 Sequoia or later on Apple Silicon or Intel Mac."
+---
+
+Capso is distributed as a signed, notarized macOS application. You can install it from GitHub Releases, via Homebrew Cask, or by building directly from source. All three methods produce the same app — choose whichever fits your workflow.
+
+## System requirements
+
+- **macOS 15.0 Sequoia or later** (including macOS 26)
+- Apple Silicon (M1 and later) or Intel — both architectures are supported
+- No additional runtimes or dependencies required
+
+## Install Capso
+
+<Steps>
+  <Step title="Choose your install method">
+    Pick one of the three options below. The signed DMG is the fastest path for most users.
+
+    <CodeGroup>
+
+    ```bash GitHub Releases DMG
+    # 1. Download the latest signed DMG from GitHub Releases
+    # Visit: https://github.com/lzhgus/Capso/releases/latest
+    # Download Capso-x.x.x.dmg
+
+    # 2. Open the DMG
+    open ~/Downloads/Capso-*.dmg
+
+    # 3. Drag Capso.app to your Applications folder
+    ```
+
+    ```bash Homebrew Cask
+    # Add the lzhgus tap, then install the cask
+    brew tap lzhgus/tap
+    brew install --cask capso
+    ```
+
+    ```bash Build from source
+    # Requires Xcode 16+ and XcodeGen
+    # See the full guide at /developer/build-from-source
+    brew install xcodegen
+    git clone https://github.com/lzhgus/Capso.git
+    cd Capso
+    xcodegen generate
+    open Capso.xcodeproj
+    # Build and run with Cmd+R
+    ```
+
+    </CodeGroup>
+
+    Building from source is covered in full detail in the [Build from source](/developer/build-from-source) guide.
+  </Step>
+
+  <Step title="Open Capso for the first time">
+    Launch Capso from your **Applications** folder or from Spotlight. If macOS shows a Gatekeeper dialog, click **Open** to confirm — the binary is signed and notarized by the developer.
+
+    <Tip>
+      If you installed via Homebrew, you can also launch with `open -a Capso` from your terminal.
+    </Tip>
+  </Step>
+
+  <Step title="Choose where Capso lives">
+    On first launch, Capso asks how you want to access it:
+
+    - **Menu bar only** — Capso runs as a menu bar app with no Dock icon. This is the recommended mode for everyday use.
+    - **Dock + menu bar** — Capso appears in both the Dock and the menu bar.
+
+    You can change this at any time in **Capso > Preferences > General**.
+  </Step>
+
+  <Step title="Grant required permissions">
+    Capso will prompt you for screen recording permission immediately after launch. Camera and microphone permissions are requested the first time you start a recording with webcam or audio enabled.
+
+    <Note>
+      Screen recording permission is required for all capture and recording features. Without it, Capso cannot function. See [Set up macOS permissions](/permissions) for step-by-step instructions.
+    </Note>
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Set up permissions" icon="shield-check" href="/permissions">
+    Grant screen recording, camera, and microphone access so Capso can work correctly.
+  </Card>
+  <Card title="Build from source" icon="code" href="/developer/build-from-source">
+    Set up a development environment and compile Capso yourself with Xcode.
+  </Card>
+</CardGroup>

@@ -1,0 +1,93 @@
+---
+title: "Extract text from any screenshot using Capso OCR"
+description: "Two on-device OCR modes built on Apple Vision: Instant OCR sends a selected region to your clipboard; Visual OCR highlights blocks you click to copy."
+---
+
+Capso can recognize and extract text from any screenshot using Apple's Vision framework. Two modes are available depending on how precisely you want to select the text: **Instant OCR** for quick full-area extraction, and **Visual OCR** for picking individual blocks. Both modes run entirely on-device — no image data leaves your Mac.
+
+## OCR modes
+
+<Tabs>
+  <Tab title="Instant OCR">
+    Instant OCR lets you draw a selection rectangle over any part of the screen. The recognized text inside that region is joined into a single string and copied directly to your clipboard.
+
+    <Steps>
+      <Step title="Trigger Instant OCR">
+        Click the OCR button in the Quick Access panel, or use the global keyboard shortcut for Instant OCR set in Preferences.
+      </Step>
+      <Step title="Draw a selection">
+        Drag to select the area of the screen containing the text you want to copy.
+      </Step>
+      <Step title="Text is copied">
+        Capso recognizes the text in the selected region and places it on the clipboard. A brief toast notification confirms the copy.
+      </Step>
+    </Steps>
+
+    <Tip>
+      If the text spans multiple lines and you want to paste it as a single paragraph, disable **Keep line breaks** in OCR settings before running Instant OCR.
+    </Tip>
+  </Tab>
+  <Tab title="Visual OCR">
+    Visual OCR processes the entire screenshot and overlays each recognized text region with a highlight. You can then click individual blocks to copy them one at a time.
+
+    <Steps>
+      <Step title="Open Visual OCR">
+        In the Quick Access panel, select **Visual OCR**. Capso analyzes the screenshot and draws highlight boxes around every detected text region.
+      </Step>
+      <Step title="Click a region to copy">
+        Click any highlighted block to copy that block's text to the clipboard. The highlight briefly pulses to confirm the copy.
+      </Step>
+      <Step title="Click elsewhere to dismiss">
+        Click outside any highlighted region to exit Visual OCR mode.
+      </Step>
+    </Steps>
+
+    Visual OCR returns regions sorted top-to-bottom, then left-to-right, which matches the natural reading order of most content.
+  </Tab>
+</Tabs>
+
+## Settings
+
+Three OCR-related settings are available in **Preferences → OCR**.
+
+| Setting | Default | Description |
+|---|---|---|
+| Keep line breaks | On | When enabled, each recognized text region is joined with a newline. Disable to join regions with a space, producing a single run-on paragraph. Controlled by `ocrKeepLineBreaks` in `AppSettings`. |
+| Detect links | On | When enabled, regions whose text matches a URL pattern (`https?://…`) are flagged as links. Visual OCR can style them distinctly and make them directly clickable. Controlled by `ocrDetectLinks`. |
+| Primary language | Auto | Force recognition toward a specific language instead of letting Vision auto-detect. Useful when a screenshot contains mixed scripts and the wrong language is being selected. Controlled by `ocrPrimaryLanguage`. |
+
+<Note>
+  When **Primary language** is set to auto (the default), Vision's `automaticallyDetectsLanguage` is enabled and language correction is applied. Setting an explicit language disables automatic detection and uses only the specified language for recognition.
+</Note>
+
+## How it works
+
+Both OCR modes are built on `OCRKit`, a lightweight Swift package that wraps Apple's Vision framework.
+
+```swift
+// Recognize text regions in a CGImage
+let regions = try await TextRecognizer.recognize(
+    image: cgImage,
+    languages: ["en"],   // nil = auto-detect
+    level: .accurate,
+    detectURLs: true
+)
+```
+
+Each recognized region is returned as a `TextRegion` value with the recognized string, a pixel-coordinate bounding box, a confidence score, and a flag indicating whether the text looks like a URL.
+
+```swift
+public struct TextRegion: Identifiable, Sendable {
+    public let id: UUID
+    public let text: String
+    public let boundingBox: CGRect   // top-left origin, pixel dimensions
+    public let confidence: Float
+    public let isURL: Bool
+}
+```
+
+For Instant OCR, `TextRecognizer.recognizeText(image:keepLineBreaks:languages:)` is used as a convenience wrapper that joins all regions into a single string. Vision's `VNRecognizeTextRequest` is run at `.accurate` level in both modes.
+
+<Warning>
+  OCR accuracy depends on image resolution and text contrast. Very small fonts (below ~10 pt when captured at 1× resolution) or low-contrast text on similarly colored backgrounds may not be recognized reliably. Capture at a higher zoom level or use Retina screenshots when possible.
+</Warning>

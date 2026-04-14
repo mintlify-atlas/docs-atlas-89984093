@@ -1,0 +1,96 @@
+---
+title: "Capso: Free native macOS screenshot and recording"
+description: "Capso is a free, open-source macOS screenshot and screen recording app — a full-featured native alternative to CleanShot X, built with Swift 6 and SwiftUI."
+---
+
+Capso is a fully native macOS app that brings professional-grade screenshot and screen recording to everyone — for free. Built with Swift 6 and SwiftUI targeting macOS 15+, it delivers the same rich feature set as paid tools like CleanShot X without any cost or subscription.
+
+<CardGroup cols={2}>
+  <Card title="Install Capso" icon="download" href="/installation">
+    Download the signed DMG or install via Homebrew. Up and running in under a minute.
+  </Card>
+  <Card title="Grant permissions" icon="shield-check" href="/permissions">
+    Capso needs screen recording, camera, and microphone access to work. Here's how to set it up.
+  </Card>
+  <Card title="Take screenshots" icon="camera" href="/screenshots/capturing">
+    Capture areas, windows, or your full screen with a single shortcut.
+  </Card>
+  <Card title="Record your screen" icon="video" href="/recording/getting-started">
+    Record to MP4 or GIF with webcam PiP, audio capture, and export quality presets.
+  </Card>
+  <Card title="Annotate & beautify" icon="pen" href="/annotation/editor">
+    Add arrows, shapes, text, and blur to screenshots. Then beautify with backgrounds and shadows.
+  </Card>
+  <Card title="Extract text with OCR" icon="text" href="/annotation/ocr">
+    Instantly copy text from any screenshot using Apple's Vision framework.
+  </Card>
+</CardGroup>
+
+## Why Capso?
+
+Every macOS screenshot tool worth using costs money. CleanShot X is $29, Cap is $58. They're excellent apps — but a core productivity feature shouldn't be locked behind a paywall.
+
+Capso is the free, open-source answer: a fully native Swift 6 app with feature parity against the best paid tools in the category.
+
+| Feature | CleanShot X | Shottr | Cap | Capso |
+|---|---|---|---|---|
+| Screenshots | Full | Full | Basic | **Full** |
+| Recording | Video + GIF | No | Video + GIF | **Video + GIF** |
+| Webcam PiP | Yes | No | Yes | **Yes (4 shapes)** |
+| OCR | Yes | Yes | No | **Yes** |
+| Annotation | Advanced | Advanced | Basic | **Advanced** |
+| Pin to Screen | Yes | Yes | No | **Yes** |
+| Beautification | Yes | No | Yes | **Yes** |
+| Native Swift | Yes | Yes | No (Tauri) | **Yes (Swift 6)** |
+| Open Source | No | No | Partial | **Yes** |
+| Price | $29 | $8 | $58 | **Free** |
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Area, window & fullscreen capture" icon="crop">
+    Select any region, click any window, or capture your entire display with pixel-perfect precision.
+  </Card>
+  <Card title="MP4 and GIF recording" icon="film">
+    Record your screen to H.264 video or animated GIF with configurable quality presets.
+  </Card>
+  <Card title="Webcam picture-in-picture" icon="user-circle">
+    Overlay your webcam in four shapes: circle, square, landscape, or portrait — draggable and resizable.
+  </Card>
+  <Card title="Annotation editor" icon="paintbrush">
+    Eight annotation tools: arrows, rectangles, ellipses, text, freehand, pixelate, counter markers, and crop.
+  </Card>
+  <Card title="Screenshot beautification" icon="sparkles">
+    Add a background color or gradient, set padding, round the corners, and drop a shadow.
+  </Card>
+  <Card title="Vision OCR" icon="eye">
+    Instant OCR copies text to your clipboard. Visual OCR highlights every text region interactively.
+  </Card>
+  <Card title="Pin to screen" icon="thumbtack">
+    Float any screenshot as an always-on-top window. Lock it or enable click-through mode.
+  </Card>
+  <Card title="Global shortcuts" icon="keyboard">
+    Every action is keyboard-accessible with fully configurable global shortcuts.
+  </Card>
+</CardGroup>
+
+## Get started
+
+<Steps>
+  <Step title="Download and install">
+    Grab the [latest signed DMG](https://github.com/lzhgus/Capso/releases/latest) from GitHub Releases, or install with `brew install --cask capso`. See [Installation](/installation) for details.
+  </Step>
+  <Step title="Grant required permissions">
+    On first launch, Capso will prompt for screen recording permission. Camera and microphone are needed for webcam PiP and audio capture. See [Permissions](/permissions).
+  </Step>
+  <Step title="Take your first screenshot">
+    Click the Capso menu bar icon and choose **Area Screenshot**, or use the default shortcut. Drag to select a region, and the Quick Access panel appears instantly.
+  </Step>
+  <Step title="Explore annotation and recording">
+    Open the Annotation Editor from the Quick Access panel to add markup, beautify the image, or extract text. Start a screen recording from the menu bar to capture video or GIF.
+  </Step>
+</Steps>
+
+<Note>
+Capso requires macOS 15.0 (Sequoia) or later. It runs natively on both Apple Silicon and Intel Macs.
+</Note>

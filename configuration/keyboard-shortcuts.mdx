@@ -1,0 +1,83 @@
+---
+title: "Configure global keyboard shortcuts for Capso on macOS"
+description: "Customize system-wide shortcuts for area capture, fullscreen, window, OCR, and screen recording — active even when Capso runs in the background."
+---
+
+Capso uses [sindresorhus/KeyboardShortcuts](https://github.com/sindresorhus/KeyboardShortcuts) (v2.2.1) to register fully configurable global shortcuts with macOS. Every shortcut is registered at the system level, so it fires regardless of which app is in focus — you never need to switch to Capso before triggering a capture.
+
+## Opening shortcut settings
+
+<Steps>
+  <Step title="Click the Capso menu bar icon">
+    The Capso icon lives in the macOS menu bar. Click it to open the menu.
+  </Step>
+  <Step title="Open Preferences">
+    Select **Preferences…** from the menu. The Preferences window opens.
+  </Step>
+  <Step title="Select the Shortcuts tab">
+    Click **Shortcuts** in the left sidebar (keyboard icon). The shortcut recorder appears.
+  </Step>
+</Steps>
+
+## Available shortcuts
+
+Shortcuts are split into two groups that mirror the sidebar layout.
+
+### Capture
+
+| Action | Default shortcut | Description |
+|---|---|---|
+| Capture Area | `⌥⇧1` | Draw a rectangle over any region and capture it. |
+| Capture Fullscreen | `⌥⇧2` | Capture the entire display the cursor is on. |
+| Capture Window | `⌥⇧3` | Click any window to capture it with its shadow. |
+| Capture Text (OCR) | `⌥⇧4` | Draw a selection and copy all recognized text to the clipboard instantly. |
+| Scrolling Capture | `⌥⇧6` | Capture content that extends beyond the visible screen by scrolling. |
+| Capture Area to Clipboard | `⌥⇧7` | Capture a region and copy the image directly to the clipboard, skipping the Quick Access panel. |
+| Capture Area & Annotate | `⌥⇧8` | Capture a region and open the annotation editor immediately. |
+
+### Recording
+
+| Action | Default shortcut | Description |
+|---|---|---|
+| Start / Stop Recording | `⌥⇧5` | Begin a new screen recording, or stop the one currently in progress. |
+
+## Reassigning a shortcut
+
+<Steps>
+  <Step title="Click the shortcut field">
+    Click the pill-shaped recorder next to the action you want to change. It highlights to indicate it is listening.
+  </Step>
+  <Step title="Press your new key combination">
+    Press the modifier keys and the key you want to use. The field updates immediately.
+  </Step>
+  <Step title="Confirm or cancel">
+    The new shortcut is saved automatically. Press **Esc** to cancel without saving, or press **Delete** to remove the shortcut entirely.
+  </Step>
+</Steps>
+
+<Tip>
+Shortcuts work system-wide even when Capso is running in the background or its window is closed. You do not need to focus the app before triggering a capture.
+</Tip>
+
+## Resolving shortcut conflicts
+
+macOS grants shortcuts on a first-registered basis. If another app already holds a combination you want to use, Capso's recorder will accept the key combo but the shortcut may not fire reliably.
+
+<Warning>
+Common conflicts include apps like Raycast, Alfred, or system shortcuts such as `⌥⇧4` (which is the `¥` character on some keyboard layouts). If a shortcut does not work, open **System Settings → Keyboard → Keyboard Shortcuts** to check for system-level conflicts.
+</Warning>
+
+To avoid conflicts:
+
+- Prefer combinations with three modifiers (e.g. `⌥⇧⌘`) — these are rarely claimed by other apps.
+- Check the **Keyboard Shortcuts** pane in System Settings if a shortcut stops responding.
+- Remove a shortcut by clicking its field and pressing **Delete**, then reassign a different combination.
+
+<CardGroup cols={2}>
+  <Card title="Capture screenshots" icon="camera" href="/screenshots/capturing">
+    Learn about the three capture modes available in Capso.
+  </Card>
+  <Card title="Screen recording" icon="circle-dot" href="/recording/getting-started">
+    Start a screen recording and control it from the floating toolbar.
+  </Card>
+</CardGroup>

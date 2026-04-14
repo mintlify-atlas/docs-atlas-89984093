@@ -1,0 +1,76 @@
+---
+title: "Quick Access panel: act on screenshots instantly"
+description: "The Quick Access panel appears after every capture and lets you copy, save, annotate, run OCR, pin, or drag the screenshot without opening a separate window."
+---
+
+Every time you take a screenshot, Capso shows a floating Quick Access panel in a corner of the screen. The panel combines a live thumbnail of the capture with a row of action buttons so you can act on the image in a single click — no need to hunt for the file in Finder or open a separate app.
+
+## What the panel shows
+
+The Quick Access panel is a lightweight `NSPanel` that floats above all other windows without stealing focus from whatever app you were using. It contains:
+
+- **A thumbnail** of the captured image, scaled to fit within a 200 × 120 pt preview area.
+- **Action buttons** on the right side of the thumbnail.
+- **A close button** in the top-right corner to dismiss it without taking any action.
+
+The panel slides in with a short ease-out animation from slightly below its final position. If you capture multiple screenshots in quick succession, panels stack vertically above each other (up to five at once). When the stack is full, the oldest panel slides off to the left to make room.
+
+## Available actions
+
+<Steps>
+  <Step title="Copy">
+    Writes the screenshot to the system clipboard as an `NSImage`. Use this to paste it directly into Slack, Notion, a design tool, or any app that accepts image paste.
+  </Step>
+  <Step title="Save">
+    Saves the screenshot to the export location configured in Settings (defaults to the Desktop). The file is named automatically with the current timestamp. The format — PNG or JPEG — follows the `screenshotFormat` preference.
+  </Step>
+  <Step title="Annotate">
+    Closes the Quick Access panel and opens the [Annotation Editor](/annotation/editor) with the screenshot pre-loaded. Draw arrows, add text, blur sensitive areas, crop the image, and export the result.
+  </Step>
+  <Step title="Pin">
+    Closes the panel and floats the screenshot as an always-on-top overlay. See [Pin to screen](/screenshots/pin-to-screen) for details.
+  </Step>
+</Steps>
+
+You can also **drag the thumbnail** out of the panel and drop it directly into any app that accepts image files — Mail, Finder, Xcode, etc. — without saving it to disk first.
+
+<Note>
+OCR is accessible from the Quick Access panel on supported screenshots. Clicking the OCR action runs Apple's Vision framework over the image and copies the recognized text to the clipboard.
+</Note>
+
+## Position
+
+The panel appears in one of two corners of the screen where the capture originated:
+
+| `quickAccessPosition` value | Panel position |
+|---|---|
+| `bottomLeft` (default) | 16 pt from the bottom-left of the display's visible frame |
+| `bottomRight` | 16 pt from the bottom-right of the display's visible frame |
+
+Change this in **Settings → Screenshots → Quick Access position**.
+
+## Auto-close
+
+The panel stays on screen until you act on it or dismiss it — unless auto-close is enabled.
+
+| Setting | Default | Description |
+|---|---|---|
+| `quickAccessAutoClose` | `false` | Automatically dismiss the panel after a fixed interval. |
+| `quickAccessAutoCloseInterval` | `5` seconds | How many seconds to wait before auto-closing. Only applies when `quickAccessAutoClose` is on. |
+
+<Warning>
+If auto-close is on and the interval is very short, you may not have time to choose an action before the panel disappears. Set the interval to at least 5 seconds for comfortable use.
+</Warning>
+
+## Disabling the panel
+
+If you prefer to skip the Quick Access panel entirely — for example because you always use `screenshotAutoCopy` or `screenshotAutoSave` — set `screenshotShowPreview` to `false` in **Settings → Screenshots**. Captures will complete silently with no panel shown.
+
+<CardGroup cols={2}>
+  <Card title="Capture modes" icon="camera" href="/screenshots/capturing">
+    Learn how to trigger area, fullscreen, and window captures.
+  </Card>
+  <Card title="Pin to screen" icon="pin" href="/screenshots/pin-to-screen">
+    Keep a screenshot visible as a floating overlay while you work.
+  </Card>
+</CardGroup>

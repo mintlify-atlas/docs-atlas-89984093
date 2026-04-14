@@ -1,0 +1,149 @@
+---
+title: "SPM package reference guide for Capso contributors"
+description: "Overview of all 8 Swift packages in Capso — purpose, key public types, and how to run each package's independent test suite from the command line."
+---
+
+Capso splits its capabilities across 8 Swift Package Manager packages in the `Packages/` directory. Each package compiles against system frameworks only (plus `SharedKit` where needed), has no UI dependencies, and ships with an independent test target. This page summarises the purpose and public surface of every package.
+
+## Package table
+
+| Package | Purpose | Key public types |
+|---|---|---|
+| `SharedKit` | App-wide settings, system permission management, and shared utilities | `AppSettings`, `PermissionManager` |
+| `CaptureKit` | ScreenCaptureKit wrapper for area, window, fullscreen, and scrolling screenshots | `ScreenCaptureManager`, `CaptureResult`, `CaptureMode`, `CaptureError` |
+| `RecordingKit` | Screen recording engine with audio and format control | `ScreenRecorder`, `RecordingState`, `RecordingConfig`, `RecordingResult` |
+| `CameraKit` | AVFoundation webcam capture for PiP overlays | `CameraManager`, `CameraDevice`, `CameraClipShape`, `CameraPosition`, `CameraError` |
+| `AnnotationKit` | Vector drawing and annotation document model | `AnnotationDocument`, `AnnotationObject`, `AnnotationRenderer` |
+| `OCRKit` | Vision framework text recognition | `TextRecognizer`, `TextRegion` |
+| `ExportKit` | Video, GIF, and image export pipeline | `VideoExporter`, `GIFExporter`, `MP4Exporter`, `ExportOptions`, `ExportFormat`, `ExportError` |
+| `EffectsKit` | Cursor click monitoring and animated highlight overlays | `ClickMonitor`, `ClickHighlightWindow` |
+
+## Package details
+
+### SharedKit
+
+Holds everything that more than one feature needs: the `AppSettings` model (all user preferences backed by `UserDefaults`), the `PermissionManager` (`@MainActor @Observable` class that checks and requests screen recording, camera, microphone, and accessibility permissions), and general utilities.
+
+```swift
+let settings = AppSettings()
+settings.recordingFormat = .mp4
+settings.highlightClicks = true
+
+let permissions = PermissionManager()
+await permissions.checkScreenRecordingPermission()
+```
+
+### CaptureKit
+
+Wraps `ScreenCaptureKit` and exposes a small async API for the three capture modes Capso supports. `ScreenCaptureManager` is a pure-static enum — call its methods directly.
+
+```swift
+let result = try await ScreenCaptureManager.captureFullscreen()
+let result = try await ScreenCaptureManager.captureWindow(windowID: id)
+let result = try await ScreenCaptureManager.captureArea(rect: rect)
+```
+
+`CaptureResult` is a `Sendable` struct safe to pass across actor boundaries. `CaptureMode` enumerates `.area`, `.fullscreen`, `.window`, and `.scrolling`.
+
+### RecordingKit
+
+Provides the recording engine that writes frames from `ScreenCaptureKit` streams to disk. `ScreenRecorder` exposes start/stop/pause controls; `RecordingState` (`idle`, `preparing`, `recording`, `paused`, `stopping`) drives the UI state machine. Configure each session with `RecordingConfig` and receive the output path and metadata in `RecordingResult`.
+
+```swift
+let config = RecordingConfig(
+    captureRect: rect,
+    displayID: CGMainDisplayID(),
+    format: .video,
+    fps: 30,
+    captureSystemAudio: true
+)
+```
+
+### CameraKit
+
+Manages an `AVCaptureSession` for webcam PiP. `CameraManager` is `@MainActor @Observable` and publishes `currentFrame: CGImage?` as frames arrive. Call `requestAccessAndStart()` to handle permission and session startup in one step.
+
+```swift
+let camera = CameraManager()
+camera.shape = .circle
+camera.position = .bottomRight
+try await camera.requestAccessAndStart()
+```
+
+`CameraClipShape` (`.circle`, `.roundedRect`) and `CameraPosition` (`.bottomLeft`, `.bottomRight`, `.topLeft`, `.topRight`) are `Sendable` enums you can persist and restore across sessions.
+
+### AnnotationKit
+
+Implements the annotation document model and a Core Graphics renderer. `AnnotationDocument` holds an ordered list of `AnnotationObject` values (arrows, rectangles, ellipses, freehand paths, text, pixelation regions, counters). `AnnotationRenderer` draws the document onto a `CGContext`.
+
+### OCRKit
+
+Thin wrapper around the Vision framework's `VNRecognizeTextRequest`. `TextRecognizer` accepts a `CGImage` and returns an array of `TextRegion` values, each carrying the recognized string and its normalized bounding box.
+
+```swift
+let regions = try await TextRecognizer.recognize(image: cgImage)
+for region in regions {
+    print(region.text, region.boundingBox)
+}
+```
+
+### ExportKit
+
+Three exporters handle different output formats:
+
+- `MP4Exporter` — re-encodes a source video using `AVAssetExportSession` with quality presets mapped from `ExportQuality`.
+- `GIFExporter` — converts a video file to an animated GIF frame-by-frame using `ImageIO`.
+- `VideoExporter` — top-level facade that dispatches to `MP4Exporter` or `GIFExporter` based on the `ExportOptions.format` field.
+
+`ExportFormat` enumerates `.mp4` and `.gif`; `ExportQuality` (from `SharedKit`) maps to `.maximum`, `.social`, and `.web` presets.
+
+### EffectsKit
+
+Two classes work together to show animated click highlights during recording:
+
+- `ClickMonitor` — installs a `CGEvent` tap on a background thread and calls `onClick` with the global cursor position on each mouse-down event.
+- `ClickHighlightWindow` — a borderless `NSPanel` that sits above all content and uses Core Animation to display a circular pulse at the click location.
+
+```swift
+let monitor = ClickMonitor()
+monitor.onClick = { point in
+    Task { @MainActor in highlightWindow.showClick(at: point) }
+}
+monitor.start()
+```
+
+## Running tests
+
+Every package has an independent test target. Run tests without opening Xcode:
+
+```bash
+swift test --package-path Packages/SharedKit
+swift test --package-path Packages/CaptureKit
+swift test --package-path Packages/RecordingKit
+swift test --package-path Packages/CameraKit
+swift test --package-path Packages/AnnotationKit
+swift test --package-path Packages/OCRKit
+swift test --package-path Packages/ExportKit
+swift test --package-path Packages/EffectsKit
+```
+
+To run the full test suite through Xcode instead:
+
+```bash
+xcodebuild test -project Capso.xcodeproj -scheme Capso
+```
+
+<Note>
+Packages that require hardware (camera, microphone, screen recording) cannot run in CI without the corresponding entitlements and permissions. Mock the underlying AVFoundation or ScreenCaptureKit calls in those test targets, or run them locally on a developer machine.
+</Note>
+
+## Further reading
+
+<CardGroup cols={2}>
+  <Card title="Architecture overview" icon="layers" href="/developer/overview">
+    Three-layer model, dependency rules, Swift 6 concurrency, and external dependencies.
+  </Card>
+  <Card title="Contributing guide" icon="code-pull-request" href="/developer/contributing">
+    Development setup, PR process, and code style guidelines.
+  </Card>
+</CardGroup>

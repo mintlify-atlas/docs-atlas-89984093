@@ -1,0 +1,87 @@
+---
+title: "Export recordings as MP4 or GIF with quality presets"
+description: "After stopping a recording, Capso shows an export sheet where you pick MP4 or GIF, apply a quality preset, and save to your Desktop or a custom folder."
+---
+
+When you stop a recording, Capso keeps the raw `.mov` file in a temporary directory and shows a preview sheet with a thumbnail, duration, and file size. From there you choose a format and quality preset, then save or copy the file. The export step converts the temporary capture into the final deliverable.
+
+## Export formats
+
+<Tabs>
+  <Tab title="MP4">
+    MP4 export re-packages the raw `.mov` capture as an `.mp4` file using H.264 video. The `MP4Exporter` uses `AVAssetExportSession` with network optimization enabled (`shouldOptimizeForNetworkUse`) so the file is web-compatible and streamable immediately.
+
+    **Audio tracks included:**
+    - System audio — stereo AAC at 48 kHz, 256 kbps (if captured)
+    - Microphone — stereo AAC at 48 kHz, 256 kbps (if captured)
+
+    Both audio tracks are recorded to separate inputs in the underlying `.mov` container, so the mix you hear on playback is the combined result of both tracks.
+  </Tab>
+  <Tab title="GIF">
+    GIF export decodes every video frame from the raw `.mov` using `AVAssetReader`, subsamples the stream to a target frame rate, and writes each kept frame to an animated GIF via `CGImageDestination`. The output loops infinitely.
+
+    Frame delays in the GIF are computed from the actual presentation-time gap between consecutive frames rather than a fixed interval, so the GIF's total playback duration matches the source recording exactly — even when the screen-capture stream emits frames at an uneven rate (common when the captured content is mostly static).
+
+    GIF does not carry an audio track.
+  </Tab>
+</Tabs>
+
+## Quality presets
+
+The `ExportQuality` enum offers three presets that balance file size against resolution and frame rate:
+
+| Preset | MP4 resolution cap | GIF frame rate | GIF max width | Best for |
+|---|---|---|---|---|
+| **Maximum** | Original (passthrough) | 25 fps | 1920 px | Archiving, editing, full-quality sharing |
+| **Social** | 1920 × 1080 | 20 fps | 1080 px | Uploading to Twitter, LinkedIn, Slack |
+| **Web** | 1280 × 720 | 15 fps | 720 px | Embedding in docs, small file-size sharing |
+
+For MP4, if your recording is already at or below the Social or Web resolution cap, Capso skips re-encoding and uses passthrough to avoid an unnecessary quality loss and encoding time.
+
+<Tip>
+Use **Maximum** when you plan to trim, crop, or annotate the video in another tool after exporting. Use **Web** for GIFs you embed in a README or documentation site — the smaller frame rate and resolution keep the file size manageable.
+</Tip>
+
+## Export destination
+
+Files are saved to the Desktop by default. To change the destination, open **Settings → Export → Save location** and choose a folder. The path is stored as `exportLocation` in `UserDefaults`.
+
+Capso generates a timestamped filename automatically (e.g. `Capso Recording 2026-04-14 at 10.32.05.mp4`) using the `FileNaming` utility so exports never overwrite each other.
+
+## Default recording format
+
+The `recordingFormat` setting controls which format button is pre-selected in the recording setup toolbar when you open it:
+
+| Value | Effect |
+|---|---|
+| `mp4` (default) | **Record Video** button is highlighted; pressing Return starts an MP4 recording |
+| `gif` | **Record GIF** button is highlighted; pressing Return starts a GIF recording |
+
+You can override this per-session from the toolbar without changing the preference.
+
+## Export options reference
+
+The `ExportOptions` struct that drives every export contains three fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `format` | `ExportFormat` | `mp4` or `gif` |
+| `quality` | `ExportQuality` | `maximum`, `social`, or `web` |
+| `destination` | `URL` | Full path to the output file, including filename and extension |
+
+## Settings reference
+
+| Setting | Default | Description |
+|---|---|---|
+| `recordingFormat` | `mp4` | Pre-selected format in the recording toolbar: `mp4` or `gif`. |
+| `exportQuality` | `maximum` | Quality preset applied at export time. |
+| `exportLocation` | Desktop | Folder where finished recordings are saved. |
+
+<CardGroup cols={2}>
+  <Card title="Getting started with recording" icon="video" href="/recording/getting-started">
+    Learn how to select an area, start recording, and use the controls bar.
+  </Card>
+  <Card title="Webcam PiP" icon="camera" href="/recording/webcam-pip">
+    Overlay your webcam feed during a screen recording.
+  </Card>
+</CardGroup>

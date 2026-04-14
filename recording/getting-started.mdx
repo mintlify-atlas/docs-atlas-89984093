@@ -1,0 +1,103 @@
+---
+title: "Record your screen to MP4 or animated GIF with Capso"
+description: "Start a screen recording from the menu bar, select a capture area, watch the 3-2-1 countdown, then pause or stop from the floating controls bar."
+---
+
+Capso records any region of your screen directly to MP4 or GIF using Apple's ScreenCaptureKit. The entire flow — area selection, recording controls, and export — is driven by a non-intrusive overlay so your screen content stays visible throughout the session.
+
+## How to start a recording
+
+<Tabs>
+  <Tab title="Menu bar">
+    Click the Capso icon in the menu bar and select **Record Screen**. The area-selection overlay appears immediately.
+  </Tab>
+  <Tab title="Keyboard shortcut">
+    Press your configured global shortcut for **Record Screen** (set in **Settings → Keyboard Shortcuts**). The overlay activates even if Capso is in the background.
+  </Tab>
+</Tabs>
+
+## Selecting the capture area
+
+After the overlay appears, drag to draw the rectangle you want to record. A dimension label (e.g. `1280 × 720`) floats below the selection as you drag so you can hit an exact pixel size before releasing.
+
+<Note>
+Enable **Remember last recording area** (`rememberLastRecordingArea`) in Settings to pre-fill the selection with the region from your previous recording. This is handy when you repeatedly record the same window or dashboard panel.
+</Note>
+
+Once you release the mouse, a small toolbar appears below the selection. From here you can:
+
+- Switch between **Record Video** (MP4) and **Record GIF**.
+- Toggle system audio, microphone, and webcam PiP.
+- Cancel with **Esc** or the cancel button.
+
+Press **Return** to start a video recording, or **Option + Return** for GIF.
+
+## Countdown overlay
+
+If `showCountdown` is enabled (the default), a large 3-2-1 overlay appears centered above the selection for three seconds before recording begins. This gives you time to arrange your screen without the countdown appearing in the final output. Disable it in **Settings → Recording → Show countdown**.
+
+Press **Esc** during the countdown to cancel before recording starts.
+
+## Recording controls
+
+Once recording begins, a floating controls bar appears at the edge of the capture area and a red border outlines the recording region. The controls bar contains:
+
+- **Timer** — elapsed time updated every 100 ms.
+- **Pause / Resume** — pausing deactivates the writer so no frames are written while you are paused; resuming reactivates it without restarting the session.
+- **Stop** — finalizes the recording and opens the export sheet.
+- **Restart** — stops the current session, discards the footage, and immediately begins a new recording of the same area with the same settings.
+- **Delete** — prompts for confirmation before permanently discarding the current recording.
+
+<Warning>
+Restarting or deleting a recording cannot be undone. The footage captured so far is permanently discarded.
+</Warning>
+
+## Pause and resume
+
+Clicking **Pause** transitions the recorder from the `recording` state to `paused`. The elapsed timer stops accumulating. The ScreenCaptureKit stream continues running in the background, but the `RecordingWriter` ignores incoming frames while deactivated — so the resulting file contains no frozen or duplicated frames from the paused interval.
+
+Clicking **Resume** transitions back to `recording`. The writer reactivates and the timer resumes from where it left off.
+
+## Stopping a recording
+
+Clicking **Stop** moves the recorder through the `stopping` state, finalizes the `.mov` container written to a temporary directory, and produces a `RecordingResult` with:
+
+| Field | Description |
+|---|---|
+| `fileURL` | Path to the temporary `.mov` file |
+| `duration` | Total active recording time (excludes paused intervals) |
+| `format` | `video` or `gif` — matches the format chosen at setup |
+| `size` | Captured region dimensions in points |
+
+The export sheet then appears so you can choose quality and save or copy the file. See [Export recordings](/recording/export) for details.
+
+## Recording states reference
+
+The `RecordingState` enum tracks the recorder lifecycle:
+
+| State | Meaning |
+|---|---|
+| `idle` | No recording in progress |
+| `preparing` | Stream and writer are being set up |
+| `recording` | Actively capturing frames |
+| `paused` | Stream running, writer deactivated |
+| `stopping` | Finalizing the output file |
+
+## Recording settings reference
+
+| Setting | Default | Description |
+|---|---|---|
+| `showCursor` | `true` | Include the mouse cursor in the recording. |
+| `highlightClicks` | `true` | Show a circular ripple animation around click locations during recording. |
+| `showCountdown` | `true` | Display a 3-2-1 countdown overlay before recording starts. |
+| `rememberLastRecordingArea` | `false` | Pre-fill the selection with the area from the previous recording. |
+| `dimScreenWhileRecording` | `true` | Slightly dim the area outside the capture region during recording. |
+
+<CardGroup cols={2}>
+  <Card title="Webcam PiP" icon="camera" href="/recording/webcam-pip">
+    Overlay your webcam in four shapes during a screen recording.
+  </Card>
+  <Card title="Export recordings" icon="file-video" href="/recording/export">
+    Choose MP4 or GIF, pick a quality preset, and save the file.
+  </Card>
+</CardGroup>

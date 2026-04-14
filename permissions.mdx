@@ -1,0 +1,114 @@
+---
+title: "Set up macOS permissions for Capso (complete guide)"
+description: "Grant screen recording, camera, and microphone access so Capso can capture your screen, overlay your webcam, and record audio during screen recordings."
+---
+
+Capso relies on macOS privacy permissions to access your screen, camera, and microphone. macOS never grants these automatically — you must approve each one. This page explains what each permission is used for, how to grant it, and what happens if it is denied.
+
+## Overview
+
+Capso uses four permissions:
+
+| Permission | Required | Used for |
+|---|---|---|
+| Screen Recording | Required | All screenshot and screen recording features |
+| Camera | Optional | Webcam picture-in-picture during recordings |
+| Microphone | Optional | Audio capture during screen recordings |
+| Accessibility | Optional | Future: scrolling capture and automation features |
+
+<Note>
+  You can review and revoke any permission at any time in **System Settings > Privacy & Security**. If you revoke a permission, the affected features stop working until you re-grant it and relaunch Capso.
+</Note>
+
+## Grant each permission
+
+<Steps>
+  <Step title="Screen recording">
+    Screen recording permission lets Capso access the contents of your display using Apple's ScreenCaptureKit framework. This is required for every capture and recording feature — area screenshots, fullscreen capture, window capture, and screen recording all depend on it.
+
+    **How to grant it:**
+
+    1. Launch Capso. A system prompt appears asking for screen recording access.
+    2. Click **Open System Settings** in the prompt.
+    3. In **System Settings > Privacy & Security > Screen Recording**, toggle **Capso** on.
+    4. Relaunch Capso when prompted.
+
+    If you dismissed the initial prompt, open System Settings manually:
+
+    ```
+    System Settings > Privacy & Security > Screen Recording > Capso (enable)
+    ```
+
+    <Warning>
+      If screen recording permission is denied, Capso cannot capture or record anything. The menu bar icon will still appear, but all capture actions will fail silently or show an error.
+    </Warning>
+  </Step>
+
+  <Step title="Camera">
+    Camera permission lets Capso access your Mac's built-in or external webcam through AVFoundation. It is only used when you enable webcam picture-in-picture (PiP) during a screen recording. If you never use webcam overlay, you can decline this permission without affecting other features.
+
+    **How to grant it:**
+
+    Capso requests camera access the first time you start a recording with webcam PiP enabled. Click **Allow** in the system prompt that appears.
+
+    To grant it manually:
+
+    ```
+    System Settings > Privacy & Security > Camera > Capso (enable)
+    ```
+
+    <Note>
+      Denying camera access disables webcam PiP. All other screenshot and recording features continue to work normally.
+    </Note>
+  </Step>
+
+  <Step title="Microphone">
+    Microphone permission lets Capso capture audio input through AVFoundation. It is only used when you record your screen with microphone audio enabled. System audio capture does not require this permission.
+
+    **How to grant it:**
+
+    Capso requests microphone access the first time you start a recording with microphone enabled. Click **Allow** in the system prompt.
+
+    To grant it manually:
+
+    ```
+    System Settings > Privacy & Security > Microphone > Capso (enable)
+    ```
+
+    <Note>
+      Denying microphone access disables microphone audio in recordings. Screen recording, screenshots, webcam PiP, and system audio capture are unaffected.
+    </Note>
+  </Step>
+
+  <Step title="Accessibility (optional)">
+    Accessibility permission uses the macOS Accessibility API (`AXIsProcessTrusted`) to inspect on-screen content. This permission is not required for any current Capso features. It is listed here because Capso checks for it in preparation for upcoming features including scrolling capture and URL scheme automation.
+
+    **How to grant it (if prompted):**
+
+    ```
+    System Settings > Privacy & Security > Accessibility > Capso (enable)
+    ```
+
+    <Tip>
+      You do not need to grant accessibility permission today. Capso will prompt you when a feature that depends on it is released.
+    </Tip>
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+If a feature stops working after you previously granted a permission, the most common cause is that macOS reset the permission after an update or Capso was reinstalled.
+
+1. Open **System Settings > Privacy & Security**.
+2. Find the relevant section (Screen Recording, Camera, or Microphone).
+3. Confirm the toggle next to Capso is on.
+4. If the toggle is on but the feature still fails, toggle it off, wait a moment, toggle it back on, then relaunch Capso.
+
+<CardGroup cols={2}>
+  <Card title="Take your first screenshot" icon="camera" href="/screenshots/capturing">
+    With permissions in place, capture an area, window, or your full screen.
+  </Card>
+  <Card title="Start screen recording" icon="video" href="/recording/getting-started">
+    Record to MP4 or GIF with webcam PiP and audio capture.
+  </Card>
+</CardGroup>

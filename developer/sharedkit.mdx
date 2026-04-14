@@ -1,0 +1,137 @@
+---
+title: "SharedKit: AppSettings and PermissionManager reference"
+description: "SharedKit is Capso's foundation package providing AppSettings (UserDefaults-backed preferences) and PermissionManager for screen recording, camera, and microphone."
+---
+
+SharedKit is the one package every other Capso package is allowed to depend on. It provides two primary types: `AppSettings`, which stores all user preferences in `UserDefaults`, and `PermissionManager`, which tracks and requests the macOS permissions Capso needs. All other feature kits (`CaptureKit`, `RecordingKit`, etc.) import SharedKit for settings and permission state.
+
+## AppSettings
+
+`AppSettings` holds every user-configurable preference with sensible defaults. Pass a custom `UserDefaults` suite in tests to avoid polluting real user preferences.
+
+```swift appsettings-usage.swift
+import SharedKit
+
+let settings = AppSettings()           // uses UserDefaults.standard
+settings.recordingFormat = .gif
+settings.exportQuality = .social
+settings.screenshotAutoCopy = true
+
+// In tests — isolated suite
+let testSettings = AppSettings(defaults: UserDefaults(suiteName: "test.suite")!)
+```
+
+### Settings reference
+
+**General**
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `startAtLogin` | `Bool` | `false` | Launch Capso at macOS login |
+| `playShutterSound` | `Bool` | `true` | Play camera shutter sound on capture |
+| `showMenuBarIcon` | `Bool` | `true` | Show icon in the macOS menu bar |
+
+**Screenshots**
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `screenshotFormat` | `ScreenshotFormat` | `.png` | Output format: `.png` or `.jpeg` |
+| `screenshotShowPreview` | `Bool` | `true` | Show Quick Access panel after capture |
+| `screenshotAutoCopy` | `Bool` | `false` | Auto-copy to clipboard |
+| `screenshotAutoSave` | `Bool` | `false` | Auto-save to export location |
+| `captureWindowShadow` | `Bool` | `true` | Include window shadow in window captures |
+| `freezeScreen` | `Bool` | `true` | Freeze the display during area selection |
+| `showMagnifier` | `Bool` | `false` | Pixel magnifier during drag selection |
+| `rememberLastCaptureArea` | `Bool` | `false` | Pre-fill last drag area on next capture |
+
+**Recording**
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `recordingFormat` | `RecordingFormat` | `.mp4` | Output format: `.mp4` or `.gif` |
+| `exportQuality` | `ExportQuality` | `.maximum` | Quality preset for export |
+| `showCursor` | `Bool` | `true` | Include cursor in recordings |
+| `highlightClicks` | `Bool` | `true` | Animate click highlights |
+| `showCountdown` | `Bool` | `true` | Show 3-2-1 countdown before recording |
+| `rememberLastRecordingArea` | `Bool` | `false` | Re-use last recording area |
+| `dimScreenWhileRecording` | `Bool` | `true` | Dim areas outside the capture region |
+
+**Camera**
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `cameraShape` | `CameraShape` | `.circle` | PiP shape: `.circle`, `.square`, `.landscape`, `.portrait` |
+| `cameraSize` | `CameraSize` | `.medium` | PiP size: `.small` (100pt), `.medium` (150pt), `.large` (220pt) |
+| `cameraMirror` | `Bool` | `true` | Mirror webcam feed horizontally |
+| `cameraCustomSizePt` | `Double` | `0` | Custom size in points; `0` means use `cameraSize` preset |
+
+**Quick Access**
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `quickAccessPosition` | `QuickAccessPosition` | `.bottomLeft` | Panel position: `.bottomLeft` or `.bottomRight` |
+| `quickAccessAutoClose` | `Bool` | `false` | Auto-dismiss after a delay |
+| `quickAccessAutoCloseInterval` | `Int` | `5` | Seconds before auto-close |
+
+**OCR**
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `ocrKeepLineBreaks` | `Bool` | `true` | Preserve line breaks in recognized text |
+| `ocrDetectLinks` | `Bool` | `true` | Format recognized URLs as links |
+| `ocrPrimaryLanguage` | `String?` | `nil` | BCP-47 language tag (e.g. `"zh-Hans"`) |
+
+**Export**
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `exportLocation` | `URL` | Desktop | Directory where files are saved |
+
+## PermissionManager
+
+`PermissionManager` is an `@Observable @MainActor` class that tracks and requests all macOS permissions Capso needs.
+
+```swift permission-usage.swift
+import SharedKit
+
+@MainActor
+final class AppCoordinator {
+    let permissions = PermissionManager()
+
+    func setup() async {
+        await permissions.checkScreenRecordingPermission()
+        await permissions.requestCameraPermission()
+        await permissions.requestMicrophonePermission()
+        permissions.checkAccessibilityPermission()
+    }
+}
+```
+
+### Permission methods
+
+| Method | Description |
+|---|---|
+| `checkScreenRecordingPermission()` | Async check via `SCShareableContent` |
+| `requestCameraPermission()` | Request via `AVCaptureDevice` |
+| `requestMicrophonePermission()` | Request via `AVCaptureDevice` |
+| `checkAccessibilityPermission()` | Sync check via `AXIsProcessTrusted()` |
+| `requestAccessibilityPermission()` | Prompt via `AXIsProcessTrustedWithOptions` |
+| `openScreenRecordingSettings()` | Open System Settings Privacy pane |
+| `openCameraSettings()` | Open Camera privacy pane |
+| `openMicrophoneSettings()` | Open Microphone privacy pane |
+| `openAccessibilitySettings()` | Open Accessibility privacy pane |
+
+## Running tests
+
+```bash
+swift test --package-path Packages/SharedKit
+```
+
+<CardGroup cols={2}>
+  <Card title="Package overview" icon="boxes-stacked" href="/developer/packages">
+    See all 8 Capso packages
+  </Card>
+  <Card title="Permissions guide" icon="shield-check" href="/permissions">
+    How to grant permissions in the Capso app
+  </Card>
+</CardGroup>

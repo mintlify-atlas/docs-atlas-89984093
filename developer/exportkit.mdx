@@ -1,0 +1,91 @@
+---
+title: "ExportKit: MP4 and GIF export pipeline reference"
+description: "ExportKit converts raw screen recordings to MP4 or animated GIF, with quality presets for H.264 encoding, AAC audio muxing, and GIF palette optimization."
+---
+
+ExportKit is the Swift package responsible for converting Capso's raw `.mov` recordings into shareable files. It supports two output formats — H.264 MP4 and animated GIF — and three quality presets that balance file size against visual fidelity.
+
+## Export formats
+
+| Format | Container | Video | Audio |
+|---|---|---|---|
+| `mp4` | MP4 | H.264 | AAC 48 kHz 256 kbps |
+| `gif` | GIF | Palette-optimized frames | None |
+
+## ExportOptions
+
+`ExportOptions` is the configuration struct you pass to the exporter.
+
+```swift export-usage.swift
+import ExportKit
+import SharedKit
+
+let options = ExportOptions(
+    format: .mp4,
+    quality: .maximum,
+    destination: URL(fileURLWithPath: "/Users/me/Desktop/recording.mp4")
+)
+
+let exporter = VideoExporter()
+try await exporter.export(sourceURL: recordingResult.fileURL, options: options)
+```
+
+### ExportFormat
+
+```swift
+public enum ExportFormat: String, Sendable {
+    case mp4
+    case gif
+}
+```
+
+### ExportQuality
+
+```swift
+public enum ExportQuality: String, CaseIterable, Sendable {
+    case maximum  // Full resolution, highest bitrate — best for archiving
+    case social   // Scaled down, optimized for social media uploads
+    case web      // Smallest file size, suitable for embedding in web pages
+}
+```
+
+| Preset | Use case | File size |
+|---|---|---|
+| `maximum` | Archiving, screen-capture demos | Largest |
+| `social` | Twitter, Slack, LinkedIn | Medium |
+| `web` | Documentation, web embeds | Smallest |
+
+## ExportError
+
+```swift
+public enum ExportError: Error, Sendable {
+    case sourceFileNotFound
+    case exportSessionFailed(String)
+    case frameExtractionFailed
+    case gifCreationFailed
+    case cancelled
+}
+```
+
+## GIF export
+
+GIF export extracts frames from the recorded `.mov`, builds a per-palette-optimized sequence, and writes a looping animated GIF. Frame rate and resolution are reduced relative to the quality preset to keep file sizes manageable.
+
+<Tip>
+For GIFs shared on GitHub or in documentation, the `web` quality preset usually produces the best balance of motion clarity and file size.
+</Tip>
+
+## Running tests
+
+```bash
+swift test --package-path Packages/ExportKit
+```
+
+<CardGroup cols={2}>
+  <Card title="Package overview" icon="boxes-stacked" href="/developer/packages">
+    See all 8 Capso packages
+  </Card>
+  <Card title="Export recordings" icon="file-export" href="/recording/export">
+    How to export recordings in the Capso app
+  </Card>
+</CardGroup>

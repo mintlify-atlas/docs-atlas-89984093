@@ -1,0 +1,121 @@
+{
+  "projectType": "saas",
+  "projectName": "Capso",
+  "projectDescription": "A free, open-source, native macOS app for screenshots and screen recording — a full-featured alternative to CleanShot X, built with Swift 6 and SwiftUI.",
+  "theme": "almond",
+  "primaryColor": "#26c5b2",
+  "lightColor": null,
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "permissions"
+            ]
+          },
+          {
+            "group": "Screenshots",
+            "pages": [
+              "screenshots/capturing",
+              "screenshots/quick-access",
+              "screenshots/pin-to-screen"
+            ]
+          },
+          {
+            "group": "Screen Recording",
+            "pages": [
+              "recording/getting-started",
+              "recording/webcam-pip",
+              "recording/export"
+            ]
+          },
+          {
+            "group": "Annotation & OCR",
+            "pages": [
+              "annotation/editor",
+              "annotation/beautification",
+              "annotation/ocr"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/keyboard-shortcuts",
+              "configuration/preferences"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Developer",
+        "groups": [
+          {
+            "group": "Architecture",
+            "pages": [
+              "developer/overview",
+              "developer/packages"
+            ]
+          },
+          {
+            "group": "Package Reference",
+            "pages": [
+              "developer/capturekit",
+              "developer/recordingkit",
+              "developer/annotationkit",
+              "developer/ocrkit",
+              "developer/exportkit",
+              "developer/sharedkit"
+            ]
+          },
+          {
+            "group": "Contributing",
+            "pages": [
+              "developer/build-from-source",
+              "developer/contributing"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Area, fullscreen, and window screenshot capture via ScreenCaptureKit",
+    "Screen recording to MP4 and GIF with system audio and microphone support",
+    "Webcam picture-in-picture with 4 shapes (circle, square, landscape, portrait)",
+    "Annotation editor with arrows, shapes, freehand, text, blur/pixelate, and counter tools",
+    "Screenshot beautification with background, padding, rounded corners, and shadow",
+    "Instant and visual OCR powered by Apple Vision framework",
+    "Pin screenshots as always-on-top floating windows with click-through mode",
+    "Fully configurable global keyboard shortcuts",
+    "Modular SPM architecture with 8 independent, reusable Swift packages",
+    "Localization: English, Simplified Chinese, Japanese, Korean"
+  ],
+  "publicApiSurface": [
+    "ScreenCaptureManager.captureFullscreen(displayID:)",
+    "ScreenCaptureManager.captureWindow(windowID:includeShadow:)",
+    "ScreenCaptureManager.captureArea(rect:displayID:)",
+    "CaptureMode (area, fullscreen, window, scrolling)",
+    "CaptureResult (image, mode, captureRect, windowName, appName, displayID)",
+    "ScreenRecorder.startRecording(config:)",
+    "ScreenRecorder.pause()",
+    "ScreenRecorder.resume()",
+    "ScreenRecorder.stopRecording()",
+    "RecordingState (idle, preparing, recording, paused, stopping)",
+    "AnnotationDocument.addObject(_:)",
+    "AnnotationDocument.removeObject(id:)",
+    "AnnotationDocument.undo()",
+    "AnnotationDocument.redo()",
+    "AnnotationObject (ArrowObject, RectangleObject, EllipseObject, TextObject, FreehandObject, PixelateObject, CounterObject, CropObject)",
+    "ExportFormat (mp4, gif)",
+    "ExportQuality (maximum, social, web)",
+    "ExportOptions(format:quality:destination:)",
+    "AppSettings (all user-configurable preferences backed by UserDefaults)",
+    "PermissionManager (screen recording, camera, microphone, accessibility)"
+  ]
+}

@@ -1,0 +1,98 @@
+---
+title: "Build Capso from source using Xcode and XcodeGen"
+description: "Clone the repo, generate the Xcode project with XcodeGen, and build Capso locally. Requires macOS 15, Xcode 16, and the XcodeGen CLI tool."
+---
+
+Capso uses [XcodeGen](https://github.com/yonaskolb/XcodeGen) to generate its `.xcodeproj` from a declarative `project.yml` — so the Xcode project file is never committed to the repository. Building from source takes about two minutes on a modern Mac.
+
+## Requirements
+
+| Tool | Version |
+|---|---|
+| macOS | 15.0 (Sequoia) or later |
+| Xcode | 16 or later |
+| XcodeGen | Latest (install via Homebrew) |
+| Swift | 6.0 (bundled with Xcode 16) |
+
+## Build in Xcode
+
+<Steps>
+  <Step title="Install XcodeGen">
+    If you don't already have XcodeGen, install it with Homebrew:
+
+    ```bash
+    brew install xcodegen
+    ```
+  </Step>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/lzhgus/Capso.git
+    cd Capso
+    ```
+  </Step>
+  <Step title="Generate the Xcode project">
+    ```bash
+    xcodegen generate
+    ```
+
+    This reads `project.yml` and produces `Capso.xcodeproj`. Re-run this command any time you add or remove source files, or modify `project.yml`.
+  </Step>
+  <Step title="Open and run">
+    ```bash
+    open Capso.xcodeproj
+    ```
+
+    Select the **Capso** scheme and press **Cmd+R** to build and run. Grant permissions when prompted on first launch.
+  </Step>
+</Steps>
+
+## Build from the command line
+
+```bash
+xcodegen generate
+xcodebuild -project Capso.xcodeproj -scheme Capso -configuration Release build
+```
+
+The built `.app` bundle ends up inside the `build/` directory at the DerivedData path reported by `xcodebuild`.
+
+## Run package tests
+
+Each SPM package has its own independent test suite. Run them without opening Xcode:
+
+```bash
+swift test --package-path Packages/SharedKit
+swift test --package-path Packages/CaptureKit
+swift test --package-path Packages/RecordingKit
+swift test --package-path Packages/CameraKit
+swift test --package-path Packages/AnnotationKit
+swift test --package-path Packages/OCRKit
+swift test --package-path Packages/ExportKit
+swift test --package-path Packages/EffectsKit
+```
+
+Or run the full test suite via Xcode:
+
+```bash
+xcodebuild test -project Capso.xcodeproj -scheme Capso
+```
+
+<Note>
+Some tests (recording, camera) require a real Mac with screen recording permission granted. They will be skipped in headless CI environments.
+</Note>
+
+## Code signing
+
+The `project.yml` sets `CODE_SIGN_STYLE: Manual` and targets a specific `DEVELOPMENT_TEAM`. For local development builds, switch to automatic code signing in Xcode: select the Capso target → **Signing & Capabilities** → enable **Automatically manage signing** and choose your personal team.
+
+<Tip>
+If you see a "No profiles for your team were found" error, switching to automatic signing and using your personal Apple ID team resolves it for local runs.
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="Contributing guide" icon="code-pull-request" href="/developer/contributing">
+    PR process, code style, and good first issues
+  </Card>
+  <Card title="Architecture overview" icon="diagram-project" href="/developer/overview">
+    Understand the modular SPM package structure
+  </Card>
+</CardGroup>

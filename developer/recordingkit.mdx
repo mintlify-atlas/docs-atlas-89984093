@@ -1,0 +1,109 @@
+---
+title: "RecordingKit: screen recording engine API reference"
+description: "Public API reference for RecordingKit — the ScreenCaptureKit-backed recording engine with start, pause, resume, and stop controls and audio mixing."
+---
+
+RecordingKit drives screen recording in Capso. `ScreenRecorder` manages an `SCStream` pipeline that delivers compressed H.264/AAC `.mov` files written by an `AVAssetWriter`. The class is `@MainActor` and `@Observable`, so SwiftUI views can observe `state` and `elapsedTime` directly. Configure each session with `RecordingConfig` before calling `startRecording`, and receive a `RecordingResult` when the session ends.
+
+## Public types
+
+| Type / Function | Description |
+|---|---|
+| `ScreenRecorder` | `@MainActor @Observable` class. Main entry point for recording sessions. |
+| `startRecording(config:)` | Starts a new recording. Throws `RecordingError` if already recording or setup fails. |
+| `pause()` | Pauses frame and audio ingestion. No-op if not `.recording`. |
+| `resume()` | Resumes from a paused state. No-op if not `.paused`. |
+| `stopRecording()` | Stops capture, finalizes the file, and returns `RecordingResult`. |
+| `state` | `RecordingState` — the current lifecycle state. |
+| `elapsedTime` | `TimeInterval` — seconds elapsed since recording started, excluding paused intervals. |
+| `error` | `Error?` — last error encountered, or `nil`. |
+| `RecordingState` | Enum of lifecycle states: `.idle`, `.preparing`, `.recording`, `.paused`, `.stopping`. |
+| `RecordingConfig` | Sendable struct that configures a recording session. |
+| `RecordingResult` | Sendable struct returned by `stopRecording()`. |
+| `RecordingFormat` | Enum: `.video` (MOV/H.264) or `.gif`. |
+| `RecordingError` | Error enum covering all failure modes. |
+
+## RecordingState
+
+| Case | Description |
+|---|---|
+| `.idle` | No recording in progress. `startRecording` can be called. |
+| `.preparing` | Stream and writer are being set up. UI should show a spinner. |
+| `.recording` | Frames are being captured and written. `elapsedTime` is ticking. |
+| `.paused` | Ingestion is paused; `elapsedTime` is frozen. |
+| `.stopping` | Stream is stopping and the file is being finalized. |
+
+`RecordingState` also exposes `isActive: Bool`, which is `true` when state is `.recording` or `.paused`.
+
+## RecordingConfig fields
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `captureRect` | `CGRect` | — | Region of the display to record, in display points. |
+| `displayID` | `CGDirectDisplayID` | — | The display to capture. |
+| `format` | `RecordingFormat` | `.video` | Output format. |
+| `fps` | `Int` | `30` | Target frames per second. |
+| `captureSystemAudio` | `Bool` | `true` | Mix system audio into the recording. |
+| `captureMicrophone` | `Bool` | `false` | Mix microphone input into the recording. |
+| `showCursor` | `Bool` | `true` | Include the cursor in the video. |
+
+## RecordingResult fields
+
+| Field | Type | Description |
+|---|---|---|
+| `fileURL` | `URL` | Path to the output `.mov` file in the temporary directory. |
+| `duration` | `TimeInterval` | Total recorded time excluding paused intervals. |
+| `format` | `RecordingFormat` | The format that was used. |
+| `size` | `CGSize` | Dimensions of the captured region. |
+
+## RecordingError cases
+
+| Case | Description |
+|---|---|
+| `.noMatchingDisplay` | No display matched the `displayID` in the config. |
+| `.writerSetupFailed(String)` | `AVAssetWriter` initialization failed; reason in the associated value. |
+| `.writerFailedToStart` | `AVAssetWriter.startWriting()` returned `false`. |
+| `.writerFailed(Error?)` | The writer entered a failed state during recording. |
+| `.notRecording` | `stopRecording()` was called when not active. |
+| `.alreadyRecording` | `startRecording()` was called while already active. |
+| `.cancelled` | The session was cancelled before any frames were written. |
+| `.noFramesCaptured` | The stream stopped without writing any video frames. |
+
+## Usage example
+
+```swift
+import RecordingKit
+import CoreGraphics
+
+let recorder = ScreenRecorder()
+
+// Configure and start
+let config = RecordingConfig(
+    captureRect: CGRect(x: 0, y: 0, width: 1440, height: 900),
+    displayID: CGMainDisplayID(),
+    format: .video,
+    fps: 30,
+    captureSystemAudio: true,
+    captureMicrophone: false,
+    showCursor: true
+)
+try await recorder.startRecording(config: config)
+
+// Pause and resume mid-recording
+recorder.pause()
+// ... user does something off-camera ...
+recorder.resume()
+
+// Stop and receive the output file
+let result = try await recorder.stopRecording()
+print(result.fileURL)    // file:///tmp/capso_recording_<uuid>.mov
+print(result.duration)   // e.g. 42.3 seconds
+```
+
+<Note>
+`ScreenRecorder` must be created and used on the main actor. The underlying `SCStream` dispatch queue runs on a background thread, but all public methods are `@MainActor` isolated.
+</Note>
+
+---
+
+[Back to package reference](/developer/packages)
